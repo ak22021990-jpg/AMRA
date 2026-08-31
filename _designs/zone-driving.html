@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AMRA Simulator - Driving</title>
+  <style>
+    :root {
+      --bg: #f4f4f0; --surface: #ffffff; --fg: #111111; --muted: #666666;
+      --border: #111111; --accent: #0055ff;
+      --font-body: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      --font-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--fg); font-family: var(--font-body); display: flex; height: 100vh; padding: 32px; align-items: center; justify-content: center; }
+    .layout {
+      width: 100%; max-width: 1440px; height: calc(100vh - 64px);
+      display: grid; grid-template-rows: auto 1fr; background: var(--surface);
+      border: 2px solid var(--border); box-shadow: 12px 12px 0px rgba(0,0,0,1);
+    }
+    .header { padding: 24px 32px; border-bottom: 2px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+    .header-title { font-family: var(--font-mono); font-size: 14px; text-transform: uppercase; font-weight: 700; display: flex; gap: 16px; }
+    .timer { font-family: var(--font-mono); font-size: 24px; font-weight: 700; color: #d93025; }
+    .content-area { display: grid; grid-template-columns: 1fr 380px; }
+    .sim-viewport { border-right: 2px solid var(--border); background: #000; position: relative; overflow: hidden; display: flex; flex-direction: column; }
+    .sim-image { flex: 1; background: url('https://images.unsplash.com/photo-1449844908441-8829872d2607?auto=format&fit=crop&q=80&w=1200') center/cover; filter: contrast(1.2) grayscale(0.2); }
+    .overlay-grid { position: absolute; inset: 0; background: linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px); background-size: 40px 40px; pointer-events: none; }
+    .target-box { position: absolute; top: 45%; left: 30%; width: 60px; height: 60px; border: 2px dashed #00ff00; background: rgba(0,255,0,0.1); cursor: pointer; }
+    .controls { padding: 32px; display: flex; flex-direction: column; background: #f9f9f9; }
+    .q-label { font-family: var(--font-mono); font-size: 12px; color: var(--muted); margin-bottom: 12px; text-transform: uppercase; }
+    h2 { font-size: 24px; font-weight: 700; line-height: 1.2; margin-bottom: 24px; letter-spacing: -0.02em; }
+    .option { padding: 16px; border: 2px solid var(--border); background: var(--surface); margin-bottom: 12px; cursor: pointer; font-size: 15px; font-weight: 600; box-shadow: 4px 4px 0px rgba(0,0,0,1); transition: all 0.1s; }
+    .option:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0px rgba(0,0,0,1); }
+    .option:hover { background: #fafafa; border-color: var(--accent); }
+    .footer-actions { margin-top: auto; display: flex; justify-content: space-between; }
+    .btn { font-family: var(--font-mono); font-size: 13px; font-weight: 700; padding: 12px 24px; text-transform: uppercase; border: 2px solid var(--border); cursor: pointer; background: var(--surface); box-shadow: 4px 4px 0px rgba(0,0,0,1); }
+    .btn-primary { background: var(--accent); color: white; }
+    .btn:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0px rgba(0,0,0,1); }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <div class="header">
+      <div class="header-title"><span>ZONE 01</span> <span>//</span> <span>US Driving Behavior</span></div>
+      <div class="timer">04:59</div>
+    </div>
+    <div class="content-area">
+      <div class="sim-viewport">
+        <div class="sim-image"></div>
+        <div class="overlay-grid"></div>
+        <div class="target-box"></div>
+      </div>
+      <div class="controls">
+        <div class="q-label">Scenario 1 / 15</div>
+        <h2>Identify the primary hazard in this specific intersection.</h2>
+        <div class="options">
+          <div class="option">A. Unmarked crosswalk engagement</div>
+          <div class="option">B. Right-of-way vehicle blind spot</div>
+          <div class="option">C. Imminent red-light running</div>
+          <div class="option">D. Safe to proceed</div>
+        </div>
+        <div class="footer-actions">
+          <button class="btn" onclick="window.location.href='amra-redesign-dashboard.html'">ABORT</button>
+          <button class="btn btn-primary" onclick="window.location.href='zone-listening.html'">NEXT</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

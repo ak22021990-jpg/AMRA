@@ -1,0 +1,89 @@
+- generic [ref=f1e3]:
+  - link "Skip to content" [ref=f1e5] [cursor=pointer]:
+    - /url: "#main-content"
+  - banner [ref=f1e7]:
+    - generic [ref=f1e8]:
+      - link "Autonomous Mobility Readiness Hiring Assessment" [ref=f1e9] [cursor=pointer]:
+        - /url: /
+        - generic [ref=f1e10]:
+          - text: Autonomous Mobility Readiness
+          - generic [ref=f1e11]: Hiring Assessment
+      - generic [ref=f1e12]:
+        - generic [ref=f1e81]: Test Candidate
+        - button "Switch to dark mode" [ref=f1e13] [cursor=pointer]
+        - navigation [ref=f1e16]:
+          - link "Driving" [ref=f1e17] [cursor=pointer]:
+            - /url: /driving
+          - link "Listening" [ref=f1e18] [cursor=pointer]:
+            - /url: /listening
+          - link "Cognitive" [ref=f1e19] [cursor=pointer]:
+            - /url: /cognitive
+          - link "Pattern" [ref=f1e20] [cursor=pointer]:
+            - /url: /pattern
+          - link "Grammar" [ref=f1e21] [cursor=pointer]:
+            - /url: /grammar
+  - main [ref=f1e22]:
+    - generic [ref=f1e23]:
+      - generic [ref=f1e24]:
+        - generic [ref=f1e82]:
+          - generic [ref=f1e83]: Autonomous Vehicle Industry
+          - heading "Welcome, Test." [level=1] [ref=f1e84]
+          - paragraph [ref=f1e85]: Complete all 5 modules to generate your hiring assessment report.
+          - generic [ref=f1e86]: test@example.com
+        - generic [ref=f1e87]:
+          - generic [ref=f1e88]: 0/5
+          - generic [ref=f1e89]: Modules Done
+      - generic [ref=f1e91]:
+        - generic [ref=f1e92] [cursor=pointer]:
+          - generic [ref=f1e93]: ~5 min
+          - heading "US Driving Behavior" [level=3] [ref=f1e99]
+          - paragraph [ref=f1e100]: 3D spatial reasoning, occlusion awareness, intent prediction across AZ, CA, NY scenarios.
+          - generic [ref=f1e101]:
+            - generic [ref=f1e102]: spatial reasoning
+            - generic [ref=f1e103]: occlusion reasoning
+            - generic [ref=f1e104]: intent prediction
+          - button "Start Module →" [ref=f1e105]:
+            - text: Start Module
+            - generic [ref=f1e106]: →
+        - generic [ref=f1e107] [cursor=pointer]:
+          - generic [ref=f1e108]: ~8 min
+          - heading "Listening Skills" [level=3] [ref=f1e114]
+          - paragraph [ref=f1e115]: "Audio-based comprehension: disputed charges, fraud conversations, agent procedure retention."
+          - generic [ref=f1e116]:
+            - generic [ref=f1e117]: listening comprehension
+            - generic [ref=f1e118]: detail retention
+            - generic [ref=f1e119]: procedural attention
+          - button "Start Module →" [ref=f1e120]:
+            - text: Start Module
+            - generic [ref=f1e121]: →
+        - generic [ref=f1e122] [cursor=pointer]:
+          - generic [ref=f1e123]: ~5 min
+          - heading "Cognitive Assessment" [level=3] [ref=f1e129]
+          - paragraph [ref=f1e130]: "Three-level reasoning: attention to detail, situational judgment, fraud pattern recognition."
+          - generic [ref=f1e131]:
+            - generic [ref=f1e132]: attention to detail
+            - generic [ref=f1e133]: situational reasoning
+            - generic [ref=f1e134]: fraud pattern recognition
+          - button "Start Module →" [ref=f1e135]:
+            - text: Start Module
+            - generic [ref=f1e136]: →
+        - generic [ref=f1e137] [cursor=pointer]:
+          - generic [ref=f1e138]: ~4 min
+          - heading "Pattern Recognition" [level=3] [ref=f1e144]
+          - paragraph [ref=f1e145]: "Visual sequence memory: watch a grid pattern flash then recreate it across Easy/Medium/Hard levels."
+          - generic [ref=f1e146]:
+            - generic [ref=f1e147]: spatial memory
+            - generic [ref=f1e148]: rapid pattern recall
+          - button "Start Module →" [ref=f1e149]:
+            - text: Start Module
+            - generic [ref=f1e150]: →
+        - generic [ref=f1e151] [cursor=pointer]:
+          - generic [ref=f1e152]: ~4 min
+          - heading "English / Grammar" [level=3] [ref=f1e158]
+          - paragraph [ref=f1e159]: Sentence structure, verb agreement, tenses, and written punctuation correction.
+          - generic [ref=f1e160]:
+            - generic [ref=f1e161]: grammar
+            - generic [ref=f1e162]: written communication
+          - button "Start Module →" [ref=f1e163]:
+            - text: Start Module
+            - generic [ref=f1e164]: →

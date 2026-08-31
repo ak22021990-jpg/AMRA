@@ -1,0 +1,430 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AMRA Assessment Redesign</title>
+  
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  
+  <style>
+    :root {
+      /* Modern minimal — Linear / Vercel direction */
+      --bg:      oklch(99% 0.002 240);
+      --surface: oklch(100% 0 0);
+      --surface-hover: oklch(98% 0.002 240);
+      --fg:      oklch(18% 0.012 250);
+      --muted:   oklch(54% 0.012 250);
+      --border:  oklch(92% 0.005 250);
+      --accent:  oklch(58% 0.18 255);
+      
+      --good:    oklch(60% 0.15 150);
+      --good-bg: oklch(96% 0.05 150);
+
+      --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+      --font-body:    -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+      
+      --radius-sm: 6px;
+      --radius-md: 12px;
+      --radius-lg: 24px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--fg);
+      font-family: var(--font-body);
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.5;
+    }
+
+    h1, h2, h3, h4 {
+      font-family: var(--font-display);
+      letter-spacing: -0.02em;
+    }
+
+    .app-container {
+      max-width: 1024px;
+      margin: 0 auto;
+      padding: 64px 24px;
+    }
+
+    /* Registration Splash */
+    .splash {
+      max-width: 400px;
+      margin: 80px auto;
+    }
+
+    .kicker {
+      display: inline-block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 12px;
+    }
+
+    .input-group {
+      margin-bottom: 20px;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--fg);
+    }
+
+    .input {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      font-family: inherit;
+      font-size: 15px;
+      color: var(--fg);
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px color-mix(in oklch, var(--accent) 20%, transparent);
+    }
+
+    .btn {
+      width: 100%;
+      background: var(--fg);
+      color: var(--surface);
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 14px 24px;
+      font-weight: 600;
+      font-size: 15px;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+
+    .btn:hover { opacity: 0.9; }
+    .btn:active { transform: scale(0.98); }
+
+    .btn-accent {
+      background: var(--accent);
+    }
+
+    /* Dashboard Layout */
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 48px;
+    }
+
+    .progress-container {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .progress-track {
+      width: 160px;
+      height: 6px;
+      background: var(--border);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 999px;
+      transition: width 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .module-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .module-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .module-card:hover {
+      border-color: var(--muted);
+      box-shadow: 0 8px 24px -8px rgba(0,0,0,0.05);
+      transform: translateY(-2px);
+    }
+
+    .module-card.done {
+      border-color: var(--good);
+      background: var(--good-bg);
+    }
+
+    .module-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+
+    .module-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .module-desc {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 24px;
+      flex: 1;
+    }
+
+    .pill-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .pill {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 8px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+
+    .time-badge {
+      font-variant-numeric: tabular-nums;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--fg);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    const MODULES_DATA = [
+      {
+        id: 'driving',
+        label: 'US Driving Behavior',
+        description: '3D spatial reasoning, occlusion awareness, intent prediction across AZ, CA, NY scenarios.',
+        time: '5 min',
+        skills: ['spatial', 'occlusion', 'prediction'],
+      },
+      {
+        id: 'listening',
+        label: 'Listening Skills',
+        description: 'Audio-based comprehension: disputed charges, fraud conversations, agent procedure retention.',
+        time: '8 min',
+        skills: ['comprehension', 'retention', 'procedural'],
+      },
+      {
+        id: 'cognitive',
+        label: 'Cognitive Assessment',
+        description: 'Three-level reasoning: attention to detail, situational judgment, fraud pattern recognition.',
+        time: '5 min',
+        skills: ['attention', 'situational', 'fraud_pattern'],
+      },
+      {
+        id: 'pattern',
+        label: 'Pattern Recognition',
+        description: 'Visual sequence memory: watch a grid pattern flash then recreate it across Easy/Medium/Hard levels.',
+        time: '4 min',
+        skills: ['memory', 'rapid_recall'],
+      },
+      {
+        id: 'grammar',
+        label: 'English / Grammar',
+        description: 'Sentence structure, verb agreement, tenses, and written punctuation correction.',
+        time: '4 min',
+        skills: ['grammar', 'communication'],
+      }
+    ];
+
+    function Registration({ onComplete }) {
+      const [name, setName] = useState('');
+      const [email, setEmail] = useState('');
+
+      return (
+        <div className="splash">
+          <span className="kicker">AMRA Hiring Assessment</span>
+          <h1 style={{ marginBottom: 8 }}>Candidate Onboarding</h1>
+          <p style={{ color: 'var(--muted)', marginBottom: 32 }}>Enter your details. Your classification will appear in the final report.</p>
+          
+          <div className="input-group">
+            <label>Full Name</label>
+            <input 
+              className="input" 
+              placeholder="e.g. Jane Doe" 
+              value={name} 
+              onChange={e => setName(e.target.value)} 
+            />
+          </div>
+          <div className="input-group">
+            <label>Email Address</label>
+            <input 
+              className="input" 
+              placeholder="name@example.com"
+              type="email" 
+              value={email} 
+              onChange={e => setEmail(e.target.value)} 
+            />
+          </div>
+          
+          <button 
+            className="btn" 
+            style={{ marginTop: 16 }}
+            onClick={() => {
+              if(name && email.includes('@')) onComplete({ name, email });
+            }}
+          >
+            Enter Gateway →
+          </button>
+        </div>
+      );
+    }
+
+    function Dashboard({ user, onStartModule, completions }) {
+      const completedCount = Object.keys(completions).length;
+      const progressPct = (completedCount / MODULES_DATA.length) * 100;
+
+      return (
+        <div className="app-container">
+          <div className="dashboard-header">
+            <div>
+              <span className="kicker">Candidate / {user.name}</span>
+              <h1 style={{ fontSize: 32 }}>Assessment Pipeline</h1>
+              <p style={{ color: 'var(--muted)', marginTop: 8 }}>Complete all 5 modules to generate your report.</p>
+            </div>
+            
+            <div className="progress-container">
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontSize: 24, fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>
+                  {completedCount}<span style={{ color: 'var(--muted)' }}>/5</span>
+                </div>
+                <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase' }}>Modules DB</div>
+              </div>
+              <div className="progress-track">
+                <div className="progress-fill" style={{ width: `${progressPct}%` }}></div>
+              </div>
+            </div>
+          </div>
+
+          <div className="module-grid">
+            {MODULES_DATA.map(mod => {
+              const isDone = !!completions[mod.id];
+              return (
+                <div key={mod.id} className={`module-card ${isDone ? 'done' : ''}`} onClick={() => !isDone && onStartModule(mod)}>
+                  <div className="module-header">
+                    <div style={{ 
+                      width: 32, height: 32, 
+                      borderRadius: 8,
+                      background: isDone ? 'var(--good)' : 'var(--fg)',
+                      color: 'var(--surface)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontWeight: 700, fontSize: 14
+                    }}>
+                      {isDone ? '✓' : mod.id[0].toUpperCase()}
+                    </div>
+                    <div className="time-badge">
+                      {isDone ? 'completed' : mod.time}
+                    </div>
+                  </div>
+                  
+                  <h3 className="module-title">{mod.label}</h3>
+                  <p className="module-desc">{mod.description}</p>
+                  
+                  <div className="pill-group">
+                    {mod.skills.map(s => <span key={s} className="pill">{s}</span>)}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {completedCount === MODULES_DATA.length && (
+            <div style={{ marginTop: 48, padding: 32, background: 'var(--fg)', color: 'var(--surface)', borderRadius: 'var(--radius-md)', textAlign: 'center' }}>
+              <h2>All modules complete</h2>
+              <p style={{ color: 'rgba(255,255,255,0.7)', margin: '8px 0 24px' }}>Your full hiring assessment report is ready for extraction.</p>
+              <button className="btn btn-accent" style={{ width: 'auto' }}>View Full Report →</button>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    function ActiveModule({ module, onComplete }) {
+      // Mocking the active state of a module to show the gamified interaction layer
+      return (
+        <div className="app-container" style={{ textAlign: 'center', paddingTop: 120 }}>
+          <span className="kicker">Simulated Environment</span>
+          <h1 style={{ marginBottom: 16 }}>{module.label}</h1>
+          <p style={{ color: 'var(--muted)', maxWidth: 400, margin: '0 auto 48px' }}>
+            {module.description}
+          </p>
+
+          <div style={{ padding: 48, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', display: 'inline-block', maxWidth: 640, width: '100%' }}>
+             <div style={{ width: 64, height: 64, margin: '0 auto 24px', borderRadius: '50%', border: '4px solid var(--accent)', borderTopColor: 'transparent', animation: 'spin 1s linear infinite' }} />
+             <h3>Session Active</h3>
+             <p style={{ color: 'var(--muted)', marginTop: 8, marginBottom: 32 }}>Interact with the simulated UI elements based on the module rules...</p>
+             <button className="btn btn-accent" onClick={() => onComplete(module.id)} style={{ maxWidth: 200 }}>
+               Finish Module
+             </button>
+          </div>
+          <style>{`@keyframes spin { 100% { transform: rotate(360deg); } }`}</style>
+        </div>
+      )
+    }
+
+    function App() {
+      const [user, setUser] = useState(null);
+      const [activeModule, setActiveModule] = useState(null);
+      const [completions, setCompletions] = useState({});
+
+      if (!user) return <Registration onComplete={setUser} />;
+      if (activeModule) return <ActiveModule module={activeModule} onComplete={(id) => {
+        setCompletions(prev => ({ ...prev, [id]: true }));
+        setActiveModule(null);
+      }} />;
+
+      return <Dashboard user={user} onStartModule={setActiveModule} completions={completions} />;
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>

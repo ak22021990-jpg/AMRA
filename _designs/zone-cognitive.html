@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AMRA Simulator - Cognitive</title>
+  <style>
+    :root {
+      --bg: #f4f4f0; --surface: #ffffff; --fg: #111111; --muted: #666666;
+      --border: #111111; --accent: #0055ff;
+      --font-body: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      --font-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--fg); font-family: var(--font-body); display: flex; height: 100vh; padding: 32px; align-items: center; justify-content: center; }
+    .layout {
+      width: 100%; max-width: 1200px; height: calc(100vh - 64px);
+      display: grid; grid-template-columns: 1fr 400px; background: var(--surface);
+      border: 2px solid var(--border); box-shadow: 12px 12px 0px rgba(0,0,0,1);
+    }
+    .text-pane { padding: 48px; border-right: 2px solid var(--border); overflow-y: auto; background: #fff; }
+    .logic-header { font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; color: var(--muted); border-bottom: 2px solid var(--border); padding-bottom: 16px; margin-bottom: 32px; word-spacing: 4px; }
+    h1 { font-size: 32px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 24px; line-height: 1.1; }
+    .body-text { font-size: 16px; line-height: 1.6; color: #333; margin-bottom: 24px; }
+    .body-text p { margin-bottom: 16px; }
+    mark { background: rgba(0,85,255,0.1); color: var(--accent); font-family: var(--font-mono); font-size: 14px; padding: 2px 4px; }
+    .question-pane { display: flex; flex-direction: column; background: #f9f9f9; }
+    .timer-bar { background: var(--border); color: white; font-family: var(--font-mono); display: flex; justify-content: space-between; padding: 12px 24px; font-weight: 700; }
+    .q-content { padding: 32px; flex: 1; }
+    .q-label { font-family: var(--font-mono); font-size: 12px; color: var(--muted); margin-bottom: 16px; text-transform: uppercase; }
+    h3 { font-size: 20px; font-weight: 700; line-height: 1.3; margin-bottom: 24px; }
+    .options { display: grid; gap: 12px; }
+    .option { padding: 16px; border: 2px solid var(--border); background: var(--surface); cursor: pointer; font-size: 14px; font-weight: 600; box-shadow: 4px 4px 0px rgba(0,0,0,1); transition: all 0.1s; }
+    .option:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0px rgba(0,0,0,1); }
+    .option:hover { background: #fafafa; border-color: var(--accent); }
+    .footer { padding: 24px 32px; border-top: 2px solid var(--border); display: flex; justify-content: flex-end; }
+    .btn { font-family: var(--font-mono); font-size: 13px; font-weight: 700; padding: 12px 24px; text-transform: uppercase; border: 2px solid var(--border); cursor: pointer; background: var(--accent); color: white; box-shadow: 4px 4px 0px rgba(0,0,0,1); }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <div class="text-pane">
+      <div class="logic-header">REFERENCE DOCUMENT // OP-PROC-992 </div>
+      <h1>Fraud Pattern Arbitration</h1>
+      <div class="body-text">
+        <p>When a transaction is flagged under condition <mark>Alpha-7</mark>, the reviewing associate must immediately cross-reference the user's last known IP address. If the distance between the IP's geolocation and the shipping address exceeds 500 miles, the associate must initiate protocol <mark>Beta-Void</mark>.</p>
+        <p>However, if the account holds "Trusted Tier" status (defined as having over 10 successful transactions in the past 6 months) AND the purchase total is under $250, <mark>Beta-Void</mark> is superseded by <mark>Gamma-Hold</mark>.</p>
+        <p>Under no circumstances should the associate directly contact the user if <mark>Beta-Void</mark> is active. Conversely, <mark>Gamma-Hold</mark> requires a minimum of two outreach attempts within a 24-hour window before final block placement.</p>
+      </div>
+    </div>
+    <div class="question-pane">
+      <div class="timer-bar">
+        <span>COG-TEST // 03</span>
+        <span>02:11</span>
+      </div>
+      <div class="q-content">
+        <div class="q-label">Logic Query 1 / 5</div>
+        <h3>A "Trusted Tier" user places a $300 order flagged as Alpha-7. The shipping address is 600 miles from the IP location. What is the required action?</h3>
+        <div class="options">
+          <div class="option">Initiate Beta-Void and do not contact user.</div>
+          <div class="option">Initiate Gamma-Hold and contact user twice.</div>
+          <div class="option">Initiate Beta-Void and contact user once.</div>
+          <div class="option">Approve the transaction unconditionally.</div>
+        </div>
+      </div>
+      <div class="footer">
+        <button class="btn" onclick="window.location.href='zone-pattern.html'">CONFIRM</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

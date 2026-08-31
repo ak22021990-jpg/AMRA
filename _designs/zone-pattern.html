@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AMRA Simulator - Pattern</title>
+  <style>
+    :root {
+      --bg: #f4f4f0; --surface: #ffffff; --fg: #111111; --muted: #666666;
+      --border: #111111; --accent: #0055ff;
+      --font-body: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      --font-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--fg); display: flex; flex-direction: column; height: 100vh; padding: 32px; align-items: center; justify-content: center; font-family: var(--font-body); }
+    .layout {
+      width: 100%; max-width: 700px; display: flex; flex-direction: column; background: var(--surface);
+      border: 2px solid var(--border); box-shadow: 12px 12px 0px rgba(0,0,0,1);
+    }
+    .header { padding: 24px; border-bottom: 2px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: #f9f9f9; }
+    .sys-text { font-family: var(--font-mono); font-size: 12px; font-weight: 700; text-transform: uppercase; }
+    .instructions { padding: 40px; text-align: center; border-bottom: 2px solid var(--border); }
+    h2 { font-size: 24px; letter-spacing: -0.02em; margin-bottom: 8px; }
+    .instructions p { color: var(--muted); font-size: 15px; }
+    .grid-zone { padding: 64px; display: flex; justify-content: center; background: var(--bg); }
+    .pattern-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; max-width: 400px; width: 100%; }
+    .cell { aspect-ratio: 1; border: 2px solid var(--border); background: var(--surface); cursor: pointer; box-shadow: 4px 4px 0px rgba(0,0,0,1); transition: all 0.1s; }
+    .cell:active { transform: translate(2px,2px); box-shadow: 2px 2px 0px rgba(0,0,0,1); }
+    .cell.active { background: var(--fg); border-color: var(--fg); box-shadow: 0 0 0 rgba(0,0,0,1); transform: translate(4px,4px); }
+    .footer { padding: 24px; display: flex; justify-content: center; background: var(--surface); border-top: 2px solid var(--border); }
+    .btn { font-family: var(--font-mono); font-size: 13px; font-weight: 700; padding: 12px 32px; text-transform: uppercase; border: 2px solid var(--border); cursor: pointer; background: var(--accent); color: white; box-shadow: 4px 4px 0px rgba(0,0,0,1); }
+    .btn:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0px rgba(0,0,0,1); }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <div class="header">
+      <span class="sys-text">MEM-SEQ // Lvl 4</span>
+      <span class="sys-text" style="color: #d93025; font-size: 16px;">T - 02.4s</span>
+    </div>
+    <div class="instructions">
+      <h2>Reconstruct the Sequence</h2>
+      <p>Select the tiles in the exact order they appeared.</p>
+    </div>
+    <div class="grid-zone">
+      <div class="pattern-grid">
+        <div class="cell"></div><div class="cell"></div><div class="cell active"></div><div class="cell"></div>
+        <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+        <div class="cell active"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+        <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell active"></div>
+      </div>
+    </div>
+    <div class="footer">
+      <button class="btn" onclick="window.location.href='zone-grammar.html'">SUBMIT PATTERN</button>
+    </div>
+  </div>
+</body>
+</html>

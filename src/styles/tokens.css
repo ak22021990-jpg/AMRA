@@ -1,0 +1,187 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+:root {
+  --bg: #f4f4f0;
+  --surface: #ffffff;
+  --fg: #111111;
+  --muted: #666666;
+  --border: #111111;
+  --accent: #0055ff;
+  --accent-hover: #0044cc;
+  --pass: #008833;
+  --pass-bg: #e6f6ec;
+  --fail: #d92211;
+  --fail-bg: #fae8e6;
+  --warn: #d97706;
+
+  --font-body: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+
+  /* legacy aliases used in module files */
+  --ink: var(--fg);
+  --panel: var(--surface);
+  --line: var(--border);
+  --body-bg: var(--bg);
+  --surface-subtle: #f9f9f9;
+  --good: var(--pass);
+  --good-bg: var(--pass-bg);
+  --good-border: #a3d9b1;
+  --bad: var(--fail);
+  --bad-bg: var(--fail-bg);
+  --bad-border: #f5b3ad;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--fg);
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.4;
+}
+
+/* ── Brutalist base components ───────────────────── */
+
+/* Progress rail (top bar) */
+.progress-rail { position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 200; background: #ddd; }
+.progress-rail-fill { height: 100%; background: var(--accent); transition: width 0.5s ease; }
+
+/* Cards */
+.card {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  box-shadow: 6px 6px 0 rgba(0,0,0,1);
+  padding: 28px 32px;
+}
+
+/* Buttons */
+.btn {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 12px 24px;
+  border: 2px solid var(--border);
+  cursor: pointer;
+  background: var(--surface);
+  color: var(--fg);
+  box-shadow: 4px 4px 0 rgba(0,0,0,1);
+  transition: all 0.1s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  line-height: 1;
+}
+.btn:hover { background: #f5f5f5; }
+.btn:active { transform: translate(2px,2px); box-shadow: 2px 2px 0 rgba(0,0,0,1); }
+
+.btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+.btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+
+.btn-ghost { background: var(--surface); color: var(--fg); }
+
+.btn-accent { background: var(--fg); color: var(--surface); border-color: var(--fg); }
+.btn-accent:hover { background: #333; }
+
+/* Options (MCQ) */
+.option {
+  text-align: left;
+  width: 100%;
+  padding: 14px 16px;
+  border: 2px solid var(--border);
+  background: var(--surface);
+  color: var(--fg);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 1.4;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 4px 4px 0 rgba(0,0,0,1);
+  transition: all 0.1s;
+}
+.option:hover:not(:disabled) { background: #fafafa; border-color: var(--accent); }
+.option:active:not(:disabled) { transform: translate(2px,2px); box-shadow: 2px 2px 0 rgba(0,0,0,1); }
+.option.correct { border-color: var(--pass); background: var(--pass-bg); color: var(--pass); }
+.option.wrong   { border-color: var(--fail); background: var(--fail-bg); color: var(--fail); }
+
+/* Progress bar */
+.bar { height: 16px; border: 2px solid var(--border); background: var(--bg); overflow: hidden; position: relative; }
+.bar > div { height: 100%; background: var(--fg); transition: width 0.4s ease; }
+
+/* Table */
+.table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.table th { padding: 12px 16px; border-bottom: 2px solid var(--border); text-align: left; font-family: var(--font-mono); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.table td { padding: 13px 16px; border-bottom: 1px solid #e5e5e5; }
+.table tbody tr:hover { background: #fafafa; }
+.table tbody tr:last-child td { border-bottom: none; }
+
+/* Inputs */
+input, textarea, select {
+  font-family: var(--font-body);
+  padding: 12px 14px;
+  border: 2px solid var(--border);
+  outline: none;
+  background: var(--surface);
+  color: var(--fg);
+  font-size: 15px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 0;
+}
+input:focus, textarea:focus { border-color: var(--accent); box-shadow: 4px 4px 0 rgba(0,85,255,0.15); }
+
+/* Kicker / label */
+.kicker {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  display: block;
+  margin-bottom: 24px;
+}
+
+/* Module grid (splash/registration pages) */
+.module-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+@media (max-width: 900px) { .module-grid { grid-template-columns: repeat(2, 1fr) !important; } }
+@media (max-width: 640px) { .module-grid { grid-template-columns: 1fr !important; } }
+
+/* Module card (splash) */
+.module-card { cursor: pointer; transition: box-shadow 0.1s, transform 0.1s; }
+.module-card:hover { box-shadow: 8px 8px 0 rgba(0,0,0,1); transform: translate(-2px,-2px); }
+.module-card.done { border-color: var(--pass); }
+
+/* score-hero (dark block) */
+.score-hero {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 22px; padding: 28px 32px;
+  background: var(--fg); color: var(--surface);
+  border: 2px solid var(--border);
+  box-shadow: 6px 6px 0 rgba(0,0,0,1);
+}
+
+/* grain overlay */
+.grain { position: relative; }
+.grain::after {
+  content: ''; position: absolute; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none; opacity: 0.4; mix-blend-mode: overlay;
+}
+
+/* aurora-gradient alias → accent for compat */
+.btn-accent-gradient { background: var(--accent); color: #fff; }
+
+/* Print */
+@media print {
+  header, .noprint, nav { display: none !important; }
+  body { background: white !important; color: #111 !important; }
+  .card { box-shadow: none !important; border: 1px solid #e5e5e5 !important; break-inside: avoid; }
+  main { margin: 0 !important; padding: 0 !important; }
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+}
