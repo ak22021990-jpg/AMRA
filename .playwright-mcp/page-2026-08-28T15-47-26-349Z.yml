@@ -1,0 +1,33 @@
+- generic [ref=f1e3]:
+  - link "Skip to content" [ref=f1e5] [cursor=pointer]:
+    - /url: "#main-content"
+  - banner [ref=f1e7]:
+    - generic [ref=f1e8]:
+      - link "Autonomous Mobility Readiness Hiring Assessment" [ref=f1e9] [cursor=pointer]:
+        - /url: /
+        - generic [ref=f1e10]:
+          - text: Autonomous Mobility Readiness
+          - generic [ref=f1e11]: Hiring Assessment
+      - generic [ref=f1e12]:
+        - generic [ref=f1e81]: Test Candidate
+        - button "Switch to dark mode" [ref=f1e13] [cursor=pointer]
+        - navigation [ref=f1e16]:
+          - link "Driving" [ref=f1e17] [cursor=pointer]:
+            - /url: /driving
+          - link "Listening" [ref=f1e18] [cursor=pointer]:
+            - /url: /listening
+          - link "Cognitive" [ref=f1e19] [cursor=pointer]:
+            - /url: /cognitive
+          - link "Pattern" [ref=f1e20] [cursor=pointer]:
+            - /url: /pattern
+          - link "Grammar" [ref=f1e21] [cursor=pointer]:
+            - /url: /grammar
+  - main [active] [ref=f1e22]:
+    - generic [ref=f1e165]:
+      - generic [ref=f1e166]: US Driving Behavior
+      - heading "AV Scenario Assessment" [level=2] [ref=f1e167]
+      - paragraph [ref=f1e168]: 3 scenario-based questions across Arizona, California, and New York. Each tests spatial reasoning, occlusion awareness, or intent prediction.
+      - generic [ref=f1e169]:
+        - generic [ref=f1e170]: 3 questions
+        - generic [ref=f1e171]: ~3 min
+      - button "Start Module" [ref=f1e172] [cursor=pointer]
