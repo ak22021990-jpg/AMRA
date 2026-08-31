@@ -1,39 +1,35 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAssessmentStore } from '../store/assessmentStore';
+import ZoneVisual from '../components/ZoneVisual';
 
 const MODULES = [
   {
     id: 'driving', num: '01', label: 'US Driving Behavior', time: '05 Min',
     desc: '3D spatial reasoning, occlusion awareness, intent prediction across AZ, CA, NY scenarios.',
     path: '/driving',
-    img: 'https://images.unsplash.com/photo-1449844908441-8829872d2607?auto=format&fit=crop&q=80&w=400',
   },
   {
     id: 'listening', num: '02', label: 'Listening Skills', time: '08 Min',
     desc: 'Audio-based fraud comprehension and strict agent procedure retention analysis.',
     path: '/listening',
-    img: 'https://images.unsplash.com/photo-1516280440502-86ec168db6e5?auto=format&fit=crop&q=80&w=400',
   },
   {
     id: 'cognitive', num: '03', label: 'Cognitive Assessment', time: '05 Min',
     desc: 'Situational judgment and rapid logic verification under stress conditions.',
     path: '/cognitive',
-    img: 'https://images.unsplash.com/photo-1507413245164-6160d8298b31?auto=format&fit=crop&q=80&w=400',
   },
   {
     id: 'pattern', num: '04', label: 'Pattern Recognition', time: '04 Min',
     desc: 'Visual sequence reconstruction under extreme time logic constraints.',
     path: '/pattern',
-    img: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=400',
   },
   {
     id: 'grammar', num: '05', label: 'English & Grammar', time: '04 Min',
     desc: 'Standardized tacticle sentence structuring and communication accuracy.',
     path: '/grammar',
-    img: 'https://images.unsplash.com/photo-1455390582262-044cdead27d8?auto=format&fit=crop&q=80&w=400',
   },
-];
+] as const;
 
 const S: Record<string, React.CSSProperties> = {
   layout: {
@@ -287,16 +283,10 @@ export default function Dashboard() {
                 onMouseEnter={() => setHovered(mod.id)}
                 onMouseLeave={() => setHovered(null)}
               >
-                {/* Grayscale photo thumbnail */}
-                <div style={{
-                  borderRight: '2px solid var(--border)',
-                  backgroundImage: `url(${mod.img})`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  filter: isHovered ? 'grayscale(0%) contrast(100%)' : 'grayscale(100%) contrast(120%)',
-                  transition: 'filter 0.3s',
-                  minHeight: 120,
-                }} />
+                {/* Zone visual */}
+                <div style={{ borderRight: '2px solid var(--border)', minHeight: 120 }}>
+                  <ZoneVisual variant={mod.id} active={isHovered} />
+                </div>
 
                 {/* Content */}
                 <div style={{

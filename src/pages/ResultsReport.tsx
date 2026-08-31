@@ -1,33 +1,29 @@
 import { useNavigate, Navigate } from 'react-router-dom';
 import { useAssessmentStore } from '../store/assessmentStore';
+import ZoneVisual from '../components/ZoneVisual';
 
-const MODULE_ORDER = ['driving', 'listening', 'cognitive', 'pattern', 'grammar'];
+const MODULE_ORDER = ['driving', 'listening', 'cognitive', 'pattern', 'grammar'] as const;
 
-const MODULE_META: Record<string, { label: string; threshold: number; image: string }> = {
+const MODULE_META: Record<string, { label: string; threshold: number }> = {
   driving: {
     label: 'US Driving Behavior',
     threshold: 80,
-    image: 'https://images.unsplash.com/photo-1449844908441-8829872d2607?auto=format&fit=crop&q=80&w=400',
   },
   listening: {
     label: 'Listening Skills',
     threshold: 75,
-    image: 'https://images.unsplash.com/photo-1516280440502-86ec168db6e5?auto=format&fit=crop&q=80&w=400',
   },
   cognitive: {
     label: 'Cognitive Assessment',
     threshold: 85,
-    image: 'https://images.unsplash.com/photo-1507413245164-6160d8298b31?auto=format&fit=crop&q=80&w=400',
   },
   pattern: {
     label: 'Pattern Recognition',
     threshold: 90,
-    image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=400',
   },
   grammar: {
     label: 'English / Grammar',
     threshold: 75,
-    image: 'https://images.unsplash.com/photo-1455390582262-044cdead27d8?auto=format&fit=crop&q=80&w=400',
   },
 };
 
@@ -272,18 +268,10 @@ export default function ResultsReport() {
                 borderBottom: '2px solid #111',
               }}
             >
-              {/* Photo thumbnail */}
-              <div
-                style={{
-                  backgroundImage: `url(${meta.image})`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  filter: 'grayscale(100%)',
-                  opacity: 0.8,
-                  borderRight: '2px solid #111',
-                  minHeight: 120,
-                }}
-              />
+              {/* Zone visual */}
+              <div style={{ borderRight: '2px solid var(--border)', minHeight: 120 }}>
+                <ZoneVisual variant={id} />
+              </div>
 
               {/* Row content */}
               <div
