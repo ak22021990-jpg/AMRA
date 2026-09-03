@@ -7,6 +7,7 @@ export interface ModuleResult {
   skillTags: string[];
   criticalErrors?: number;
   completed: boolean;
+  duration?: number;
 }
 
 export interface RoutingRecommendation {
@@ -20,6 +21,12 @@ interface AssessmentStore {
   candidateName: string;
   candidateEmail: string;
   results: Record<string, ModuleResult>;
+  unlockedAchievements: string[];
+  currentStreak: number;
+  bestStreak: number;
+  moduleStartTime: number | null;
+  startModule: () => void;
+  recordAnswer: (correct: boolean) => void;
   setCandidate: (name: string, email: string) => void;
   recordResult: (result: ModuleResult) => void;
   resetModule: (moduleId: string) => void;
@@ -35,13 +42,39 @@ export const useAssessmentStore = create<AssessmentStore>((set, get) => ({
   candidateName: '',
   candidateEmail: '',
   results: {},
+  unlockedAchievements: [],
+  currentStreak: 0,
+  bestStreak: 0,
+  moduleStartTime: null,
+
+  startModule: () => {
+    set({ moduleStartTime: Date.now() });
+  },
+
+  recordAnswer: (correct: boolean) => {
+    const { currentStreak, bestStreak } = get();
+    if (correct) {
+      const newStreak = currentStreak + 1;
+      set({
+        currentStreak: newStreak,
+        bestStreak: Math.max(newStreak, bestStreak),
+      });
+    } else {
+      set({ currentStreak: 0 });
+    }
+  },
 
   setCandidate: (name, email) => set({ candidateName: name, candidateEmail: email }),
 
   recordResult: (result) =>
-    set((state) => ({
-      results: { ...state.results, [result.moduleId]: result },
-    })),
+    set((state) => {
+      const { moduleStartTime } = state;
+      const duration = moduleStartTime ? Math.round((Date.now() - moduleStartTime) / 1000) : undefined;
+      return {
+        results: { ...state.results, [result.moduleId]: { ...result, duration } },
+        moduleStartTime: null,
+      };
+    }),
 
   resetModule: (moduleId) =>
     set((state) => {
@@ -128,5 +161,13 @@ export const useAssessmentStore = create<AssessmentStore>((set, get) => ({
   },
 
   resetAssessment: () =>
-    set({ candidateName: '', candidateEmail: '', results: {} }),
+    set({
+      candidateName: '',
+      candidateEmail: '',
+      results: {},
+      unlockedAchievements: [],
+      currentStreak: 0,
+      bestStreak: 0,
+      moduleStartTime: null,
+    }),
 }));
