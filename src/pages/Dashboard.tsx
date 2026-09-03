@@ -1,12 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAssessmentStore } from '../store/assessmentStore';
 import { AnimatedQuestPath } from '../components/dashboard/AnimatedQuestPath';
+import { useConfetti } from '../hooks/useConfetti';
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const { candidateName, setCandidate, results, xp, currentStreak, allModulesComplete } = useAssessmentStore();
   const [sfxEnabled, setSfxEnabled] = useState(true);
+  const fireConfetti = useConfetti();
+
+  useEffect(() => {
+    // Welcome confetti on first visit
+    const hasVisited = localStorage.getItem('dashboard-visited');
+    if (!hasVisited) {
+      fireConfetti();
+      localStorage.setItem('dashboard-visited', 'true');
+    }
+  }, [fireConfetti]);
 
   if (!candidateName) {
     return (
