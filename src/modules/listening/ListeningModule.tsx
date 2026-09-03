@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { useAssessmentStore } from '../../store/assessmentStore';
 import { useSound } from '../../hooks/useSound';
+import { motion } from 'framer-motion';
 
 const questions = [
   {
@@ -289,7 +290,10 @@ export default function ListeningModule() {
   };
 
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
       style={{
         maxWidth: 1000,
         height: 'calc(100vh - 3px)',
@@ -407,10 +411,12 @@ export default function ListeningModule() {
           }}
         >
           {q.options.map((opt, idx) => (
-            <div
+            <motion.div
               key={idx}
               onClick={() => handleSelect(idx)}
               style={optionStyle(idx)}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
             >
               <span
                 style={{
@@ -423,7 +429,7 @@ export default function ListeningModule() {
                 {OPTION_LETTERS[idx]}
               </span>
               <span>{opt}</span>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>
@@ -479,6 +485,6 @@ export default function ListeningModule() {
           SUBMIT
         </button>
       </div>
-    </div>
+    </motion.div>
   );
 }

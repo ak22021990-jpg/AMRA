@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { useAssessmentStore } from '../../store/assessmentStore';
 import { useSound } from '../../hooks/useSound';
+import { motion } from 'framer-motion';
 
 const questions = [
   {
@@ -9,45 +10,45 @@ const questions = [
     stateCode: 'AZ',
     skillTag: 'state_knowledge',
     critical: true,
-    videoLabel: 'AZ \u00b7 School Bus Stop',
+    videoLabel: 'AZ · School Bus Stop',
     videoFile: 'Q1.mp4',
     videoPrompt: 'School bus, red lights, stop arm out',
     question: 'A school bus ahead has stopped with red lights flashing and its stop arm extended. What should the driver do?',
     options: [
-      'Pass slowly',
-      'Stop as required and wait until it is safe and lawful to proceed',
-      'Honk and pass on the left',
-      'Continue if no child is visible',
+      'Stop only if you are behind the bus',
+      'Stop regardless of your direction of travel on an undivided roadway',
+      'Slow down to 15 mph and pass cautiously',
+      'Honk to alert the bus driver and proceed',
     ],
     correctIndex: 1,
-    explanation: 'A stopped school bus with active red warning signals is a safety-critical condition. Do not pass when a stop is required.',
+    explanation: 'In Arizona, you must stop for a school bus with flashing red lights and an extended stop arm on any undivided roadway, regardless of which direction you are traveling.',
   },
   {
     state: 'California',
     stateCode: 'CA',
     skillTag: 'state_knowledge',
     critical: false,
-    videoLabel: 'CA \u00b7 Roundabout Entry',
-    videoFile: 'Q6.mp4',
-    videoPrompt: 'Roundabout entry',
-    question: 'When entering a roundabout in California, a driver should:',
+    videoLabel: 'CA · Highway Lane Usage',
+    videoFile: 'Q2.mp4',
+    videoPrompt: 'Towing a trailer on a 4-lane highway',
+    question: 'When towing a trailer on a highway with four or more lanes in your direction, which lanes are you permitted to use?',
     options: [
-      'Enter before circulating traffic',
-      'Yield to traffic already in the roundabout',
-      'Stop inside the roundabout',
-      'Drive clockwise',
+      'Any lane you choose',
+      'The two rightmost lanes',
+      'Only the far right lane',
+      'The carpool (HOV) lane',
     ],
     correctIndex: 1,
-    explanation: 'Slow, yield to circulating traffic, then enter when a safe gap is available.',
+    explanation: 'In California, if you are towing a trailer or driving a large truck on a highway with four or more lanes in your direction, you may only drive in the two rightmost lanes.',
   },
   {
     state: 'New York',
     stateCode: 'NY',
     skillTag: 'state_knowledge',
     critical: false,
-    videoLabel: 'NY \u00b7 White Cane Pedestrian',
-    videoFile: 'Q11.mp4',
-    videoPrompt: 'Pedestrian using a white cane',
+    videoLabel: 'NY · Pedestrian Yield',
+    videoFile: 'Q3.mp4',
+    videoPrompt: 'Pedestrian with white cane at crosswalk',
     question: 'A driver approaching a pedestrian using a white cane should:',
     options: [
       'Assume the person can see the vehicle',
@@ -56,22 +57,28 @@ const questions = [
       'Pass quickly before they step out',
     ],
     correctIndex: 1,
-    explanation: 'A white cane can indicate visual impairment; heightened caution and yielding are essential.',
+    explanation: 'In New York, a pedestrian with a white cane or guide dog is blind or visually impaired. Drivers must exercise heightened caution and always yield the right-of-way.',
   },
 ];
-
-const TOTAL_SECONDS = 180;
 
 export default function DrivingModule() {
   const navigate = useNavigate();
   const { candidateName, recordResult, recordAnswer } = useAssessmentStore();
   const { play } = useSound();
+
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState<boolean[]>([]);
-  const [answered, setAnswered] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(180);
+  
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [answered, setAnswered] = useState(false);
   const [done, setDone] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(TOTAL_SECONDS);
+
+  if (!candidateName) {
+    return <Navigate to="/" replace />;
+  }
+
+  const q = questions[current]!;
 
   useEffect(() => {
     if (done) return;
@@ -87,21 +94,18 @@ export default function DrivingModule() {
     return () => clearInterval(id);
   }, [done]);
 
-  if (!candidateName) {
-    return <Navigate to="/" replace />;
-  }
-
-  const q = questions[current]!;
-
   const handleSelect = (optionIndex: number) => {
     if (answered) return;
-    const isCorrect = optionIndex === q.correctIndex;
     setSelectedIndex(optionIndex);
+  };
+
+  const handleSubmit = () => {
+    if (answered || selectedIndex === null) return;
+    const isCorrect = selectedIndex === q.correctIndex;
     setAnswered(true);
     const newAnswers = [...answers, isCorrect];
     setAnswers(newAnswers);
 
-    // Sound + streak tracking
     play(isCorrect ? 'correct' : 'wrong');
     recordAnswer(isCorrect);
 
@@ -111,21 +115,26 @@ export default function DrivingModule() {
         setAnswered(false);
         setSelectedIndex(null);
       } else {
-        const score = newAnswers.filter(Boolean).length;
-        const criticalErrors = questions
-          .filter((q, i) => q!.critical && !newAnswers[i])
-          .length;
-        recordResult({
-          moduleId: 'driving',
-          score,
-          total: questions.length,
-          skillTags: questions.map(q => q!.skillTag),
-          criticalErrors,
-          completed: true,
-        });
-        setDone(true);
+        try {
+          const score = newAnswers.filter(Boolean).length;
+          const criticalErrors = questions
+            .filter((q, i) => q!.critical && !newAnswers[i])
+            .length;
+          recordResult({
+            moduleId: 'driving',
+            score,
+            total: questions.length,
+            skillTags: questions.map(q => q!.skillTag),
+            criticalErrors,
+            completed: true,
+          });
+        } catch (e) {
+          console.error(e);
+        } finally {
+          setDone(true);
+        }
       }
-    }, 1200);
+    }, 1500);
   };
 
   const formatTime = (s: number) => {
@@ -138,40 +147,34 @@ export default function DrivingModule() {
     const score = answers.filter(Boolean).length;
     return (
       <div className="anim-scale-in" style={{
-        width: '100%', maxWidth: 1440, height: 'calc(100vh - 3px)',
-        margin: '3px auto 0', display: 'grid', gridTemplateRows: 'auto 1fr',
-        background: 'var(--surface)', border: '1px solid var(--border)',
-        boxShadow: '0 8px 32px rgba(0,0,0,0.5)', fontFamily: 'var(--font-mono)',
+        width: '100%', maxWidth: 1440, minHeight: '100dvh',
+        margin: '0 auto', display: 'flex', flexDirection: 'column',
+        background: 'var(--bg)', fontFamily: 'var(--font-display)',
       }}>
         <div style={{
-          padding: '24px 32px', borderBottom: '1px solid var(--border)',
+          padding: '24px 48px',
           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          borderBottom: '1px solid var(--border)'
         }}>
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: 14, textTransform: 'uppercase', fontWeight: 700, display: 'flex', gap: 16 }}>
-            <span>ZONE 01</span><span style={{ color: 'var(--muted)' }}>//</span><span>US Driving Behavior</span>
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: 14, fontWeight: 700, display: 'flex', gap: 16 }}>
+            <span style={{ color: 'var(--accent)' }}>ZONE 01</span>
+            <span style={{ color: 'var(--muted)' }}>//</span>
+            <span>US Driving Behavior</span>
           </div>
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: 24, fontWeight: 700, color: 'var(--fail)' }}>COMPLETE</div>
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 700, color: 'var(--pass)' }}>COMPLETE</div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 48 }}>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--muted)', textTransform: 'uppercase', marginBottom: 16 }}>Module Complete</div>
-            <div style={{ fontSize: 72, fontWeight: 700, letterSpacing: '-0.04em', lineHeight: 1 }}>
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 48 }}>
+          <div className="bento-card" style={{ textAlign: 'center', maxWidth: 480, width: '100%' }}>
+            <div className="kicker" style={{ marginBottom: 16 }}>Module Complete</div>
+            <div style={{ fontSize: 72, fontWeight: 700, letterSpacing: '-0.04em', lineHeight: 1, marginBottom: 16, color: 'var(--fg)' }}>
               {score}/{questions.length}
             </div>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 14, color: 'var(--muted)', marginTop: 8 }}>
-              {Math.round((score / questions.length) * 100)}% correct
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: 16, color: 'var(--muted)' }}>
+              {Math.round((score / questions.length) * 100)}% Accuracy Achieved
             </div>
-            <div style={{ display: 'flex', gap: 16, justifyContent: 'center', marginTop: 32 }}>
-              <button
-                onClick={() => navigate('/')}
-                style={{
-                  fontFamily: 'var(--font-mono)', fontSize: 13, fontWeight: 700,
-                  padding: '12px 24px', textTransform: 'uppercase' as const,
-                  border: '1px solid var(--border)', cursor: 'pointer', background: 'var(--surface)',
-                  boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
-                }}
-              >
-                BACK TO DASHBOARD
+            <div style={{ marginTop: 40 }}>
+              <button onClick={() => navigate('/')} className="btn btn-primary" style={{ width: '100%' }}>
+                RETURN TO HUB
               </button>
             </div>
           </div>
@@ -181,170 +184,198 @@ export default function DrivingModule() {
   }
 
   return (
-    <div style={{
-      width: '100%', maxWidth: 1440, height: 'calc(100vh - 3px)',
-      margin: '3px auto 0', display: 'grid', gridTemplateRows: 'auto 1fr',
-      background: 'var(--surface)', border: '1px solid var(--border)',
-      boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
-    }}>
-      {/* Header */}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      style={{
+        width: '100%', minHeight: '100dvh',
+        background: 'var(--bg)', display: 'flex', flexDirection: 'column'
+      }}
+    >
+      {/* Immersive Top Bar (Matching ZIP's header telemetry styling) */}
       <div style={{
-        padding: '24px 32px', borderBottom: '1px solid var(--border)',
-        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        padding: '24px 48px', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        background: 'var(--surface)', borderBottom: '1px solid var(--border)',
+        position: 'sticky', top: 0, zIndex: 100
       }}>
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: 14, textTransform: 'uppercase' as const, fontWeight: 700, display: 'flex', gap: 16 }}>
-          <span>ZONE 01</span><span style={{ color: 'var(--muted)' }}>//</span><span>US Driving Behavior</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 700, color: 'var(--accent)', letterSpacing: '0.1em' }}>
+            SCENARIO-0{current + 1}
+          </span>
+          <span style={{ color: 'var(--muted)' }}>/</span>
+          <span style={{ fontFamily: 'var(--font-display)', fontSize: 14, fontWeight: 600, color: 'var(--fg)' }}>
+            Urban Occlusion & Crosswalk Yield
+          </span>
         </div>
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: 24, fontWeight: 700, color: 'var(--fail)' }}>
-          {formatTime(timeLeft)}
+        <div style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 16px', background: 'var(--surface-subtle)', borderRadius: 999, border: '1px solid var(--border)' }}>
+            <span style={{ fontSize: 10, textTransform: 'uppercase', color: 'var(--muted)', fontWeight: 700, letterSpacing: '0.05em' }}>REMAINING</span>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 14, fontWeight: 700, color: timeLeft < 30 ? 'var(--fail)' : 'var(--accent)' }}>
+              {formatTime(timeLeft)}
+            </span>
+          </div>
+          <button onClick={() => navigate('/')} className="btn" style={{ padding: '8px 16px', fontSize: 12 }}>
+            ABORT
+          </button>
         </div>
       </div>
 
-      {/* Content area */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', overflow: 'hidden' }}>
-        {/* Sim viewport */}
-        <div style={{
-          borderRight: '1px solid var(--border)', background: 'var(--bg)',
-          position: 'relative', overflow: 'hidden',
-          display: 'flex', flexDirection: 'column' as const,
-        }}>
-          <video
-            key={q.videoFile}
-            src={`${import.meta.env.BASE_URL}video/${q.videoFile}`}
-            autoPlay
-            muted
-            loop
-            playsInline
-            style={{ width: '100%', height: '100%', objectFit: 'cover', flex: 1 }}
-            onError={(e) => {
-              // fallback to static image if video fails
-              (e.target as HTMLVideoElement).style.display = 'none';
-              const fallback = document.createElement('div');
-              fallback.style.cssText = "position:absolute;inset:0;background:url('https://images.unsplash.com/photo-1449844908441-8829872d2607?auto=format&fit=crop&q=80&w=1200') center/cover;filter:contrast(1.2) grayscale(0.2);";
-              (e.target as HTMLVideoElement).parentNode?.appendChild(fallback);
-            }}
-          />
-          {/* Overlay grid */}
-          <div style={{
-            position: 'absolute', inset: 0,
-            background: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)',
-            backgroundSize: '40px 40px',
-            pointerEvents: 'none' as const,
-          }} />
-        </div>
-
-        {/* Controls panel */}
-        <div style={{
-          padding: 32, display: 'flex', flexDirection: 'column' as const,
-          background: 'var(--bg)', overflow: 'auto',
-        }}>
-          {/* Q label */}
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--muted)', marginBottom: 12, textTransform: 'uppercase' as const }}>
-            Scenario {current + 1} / {questions.length}
+      {/* 65% / 35% Split Layout (Matching ZIP's lg:grid-cols-12 layout) */}
+      <div style={{ 
+        flex: 1, padding: '32px 48px', display: 'grid', 
+        gridTemplateColumns: 'minmax(0, 8fr) minmax(0, 4fr)', gap: 32, 
+        maxWidth: 1440, margin: '0 auto', width: '100%', alignItems: 'start'
+      }}>
+        
+        {/* Left: 65% Simulated 16:9 Waymo AV Perception HUD */}
+        <section style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div className="bento-card" style={{ 
+            padding: 0, overflow: 'hidden', width: '100%', aspectRatio: '16/9', 
+            background: 'var(--midnight)', position: 'relative'
+          }}>
+            <video
+              key={q.videoFile}
+              src={`${import.meta.env.BASE_URL}video/${q.videoFile}`}
+              autoPlay muted loop playsInline
+              style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.8 }}
+              onError={(e) => {
+                (e.target as HTMLVideoElement).style.display = 'none';
+                const fallback = document.createElement('div');
+                fallback.style.cssText = "position:absolute;inset:0;background:url('https://images.unsplash.com/photo-1449844908441-8829872d2607?auto=format&fit=crop&q=80&w=1200') center/cover;filter:contrast(1.2) grayscale(0.2);";
+                (e.target as HTMLVideoElement).parentNode?.appendChild(fallback);
+              }}
+            />
+            {/* Top HUD Overlay (Live Perception Stream) */}
+            <div style={{
+              position: 'absolute', top: 16, left: 16, right: 16,
+              display: 'flex', justifyContent: 'space-between', pointerEvents: 'none'
+            }}>
+              <div style={{
+                padding: '6px 12px', background: 'rgba(7, 13, 30, 0.8)', backdropFilter: 'blur(8px)',
+                borderRadius: 999, color: '#fff', fontSize: 11, fontWeight: 600, border: '1px solid rgba(255,255,255,0.1)',
+                display: 'flex', alignItems: 'center', gap: 8
+              }}>
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--accent)', boxShadow: '0 0 8px var(--accent)' }}></span>
+                LIVE PERCEPTION STREAM
+              </div>
+            </div>
+            
+            {/* Playback scrubbing bar bottom */}
+            <div style={{
+              position: 'absolute', bottom: 0, left: 0, right: 0, padding: 16,
+              background: 'linear-gradient(to top, rgba(7, 13, 30, 0.9), transparent)'
+            }}>
+              <div style={{ width: '100%', height: 6, background: 'rgba(255,255,255,0.2)', borderRadius: 999, overflow: 'hidden' }}>
+                <div style={{ width: '60%', height: '100%', background: 'var(--accent)', boxShadow: '0 0 8px var(--accent)' }}></div>
+              </div>
+            </div>
           </div>
+          
+          {/* Metadata Bar */}
+          <div className="bento-card" style={{ padding: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+             <div style={{ display: 'flex', gap: 16, color: 'var(--muted)', fontSize: 13, fontFamily: 'var(--font-mono)' }}>
+               <span>Front HD Stereoscopic Array</span>
+               <span>•</span>
+               <span>Exposure: Auto HDR</span>
+               <span>•</span>
+               <span>Latency: 14ms</span>
+             </div>
+          </div>
+        </section>
 
-          {/* Question */}
-          <h2 style={{ fontSize: 24, fontWeight: 700, lineHeight: 1.2, marginBottom: 24, letterSpacing: '-0.02em', margin: '0 0 24px' }}>
-            {q.question}
-          </h2>
+        {/* Right: 35% Gamified Decision Bento Card */}
+        <section style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div className="bento-card" style={{ display: 'flex', flexDirection: 'column', minHeight: 600, padding: 32 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: 16, borderBottom: '1px solid var(--border)', marginBottom: 24 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 700 }}>Behavior Protocol</span>
+              </div>
+              <span style={{ padding: '4px 8px', background: 'var(--accent-bg)', color: 'var(--accent)', fontSize: 11, fontWeight: 700, borderRadius: 999 }}>AMRA-PASS</span>
+            </div>
 
-          {/* Options */}
-          <div>
-            {q.options.map((opt, i) => {
-              let bg = 'var(--surface)';
-              let borderColor = 'var(--border)';
-              if (answered && selectedIndex !== null) {
-                if (i === q.correctIndex) {
-                  bg = 'var(--pass-bg)';
-                  borderColor = 'var(--pass)';
-                } else if (i === selectedIndex && i !== q.correctIndex) {
-                  bg = 'var(--fail-bg)';
-                  borderColor = 'var(--fail)';
+            <div style={{ padding: 16, background: 'var(--surface-subtle)', borderRadius: 16, border: '1px solid var(--border)', marginBottom: 24 }}>
+              <span style={{ display: 'block', fontSize: 11, color: 'var(--muted)', fontWeight: 700, textTransform: 'uppercase', marginBottom: 8, fontFamily: 'var(--font-mono)' }}>Real-Time Event Prompt</span>
+              <p style={{ fontSize: 16, fontWeight: 600, lineHeight: 1.5, color: 'var(--fg)', margin: 0 }}>
+                {q.question}
+              </p>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, flex: 1 }}>
+              {q.options.map((opt, i) => {
+                let bg = 'var(--surface)';
+                let borderColor = 'var(--border)';
+                let letterBg = 'var(--surface-2)';
+                let letterColor = 'var(--fg)';
+                
+                if (!answered && selectedIndex === i) {
+                  borderColor = 'var(--accent)';
+                  bg = 'var(--accent-bg)';
+                  letterBg = 'var(--accent)';
+                  letterColor = '#fff';
+                } else if (answered && selectedIndex !== null) {
+                  if (i === q.correctIndex) {
+                    bg = 'var(--pass-bg)';
+                    borderColor = 'var(--pass)';
+                    letterBg = 'var(--pass)';
+                    letterColor = '#fff';
+                  } else if (i === selectedIndex && i !== q.correctIndex) {
+                    bg = 'var(--fail-bg)';
+                    borderColor = 'var(--fail)';
+                    letterBg = 'var(--fail)';
+                    letterColor = '#fff';
+                  }
                 }
-              }
-              return (
-                <button
-                  key={i}
-                  onClick={() => handleSelect(i)}
-                  disabled={answered}
-                  style={{
-                    display: 'block', width: '100%', padding: 16,
-                    border: `2px solid ${borderColor}`, background: bg,
-                    marginBottom: 12, cursor: answered ? 'default' : 'pointer',
-                    fontSize: 15, fontWeight: 600, textAlign: 'left' as const,
-                    boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
-                    transition: 'all 0.1s',
-                    fontFamily: 'inherit',
-                  }}
-                  onMouseEnter={e => {
-                    if (!answered) {
-                      (e.currentTarget as HTMLButtonElement).style.background = 'var(--surface-subtle)';
-                      (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--accent)';
-                    }
-                  }}
-                  onMouseLeave={e => {
-                    if (!answered) {
-                      (e.currentTarget as HTMLButtonElement).style.background = 'var(--surface)';
-                      (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--border)';
-                    }
-                  }}
-                  onMouseDown={e => {
-                    if (!answered) {
-                      (e.currentTarget as HTMLButtonElement).style.transform = 'translate(2px,2px)';
-                      (e.currentTarget as HTMLButtonElement).style.boxShadow = '2px 2px 0 rgba(0,0,0,0.5)';
-                    }
-                  }}
-                  onMouseUp={e => {
-                    if (!answered) {
-                      (e.currentTarget as HTMLButtonElement).style.transform = '';
-                      (e.currentTarget as HTMLButtonElement).style.boxShadow = '4px 4px 0 rgba(0,0,0,0.5)';
-                    }
-                  }}
-                >
-                  {opt}
-                </button>
-              );
-            })}
-          </div>
+                
+                return (
+                  <motion.button
+                    key={i}
+                    onClick={() => handleSelect(i)}
+                    disabled={answered}
+                    className="option"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    style={{
+                      borderColor,
+                      background: bg,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 16,
+                      padding: 16,
+                      textAlign: 'left'
+                    }}
+                  >
+                    <span style={{
+                      width: 28, height: 28, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: 12, fontWeight: 700, background: letterBg, color: letterColor, flexShrink: 0, transition: 'all 0.2s'
+                    }}>
+                      {String.fromCharCode(65 + i)}
+                    </span>
+                    <span style={{ fontSize: 15, fontWeight: 500, color: 'var(--fg)' }}>
+                      {opt}
+                    </span>
+                  </motion.button>
+                );
+              })}
+            </div>
 
-          {/* Footer actions */}
-          <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'space-between', paddingTop: 24 }}>
-            <button
-              onClick={() => navigate('/')}
-              style={{
-                fontFamily: 'var(--font-mono)', fontSize: 13, fontWeight: 700,
-                padding: '12px 24px', textTransform: 'uppercase' as const,
-                border: '1px solid var(--border)', cursor: 'pointer', background: 'var(--surface)',
-                boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
-              }}
-            >
-              ABORT
-            </button>
-            <button
-              disabled={!answered}
-              onClick={() => {
-                if (current + 1 < questions.length) {
-                  setCurrent(current + 1);
-                  setAnswered(false);
-                  setSelectedIndex(null);
-                } else {
-                  navigate('/');
-                }
-              }}
-              style={{
-                fontFamily: 'var(--font-mono)', fontSize: 13, fontWeight: 700,
-                padding: '12px 24px', textTransform: 'uppercase' as const,
-                border: '1px solid var(--border)', cursor: answered ? 'pointer' : 'default',
-                background: 'var(--accent)', color: 'var(--fg)',
-                boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
-                opacity: answered ? 1 : 0.4,
-              }}
-            >
-              {current + 1 < questions.length ? 'NEXT' : 'SUBMIT'}
-            </button>
+            <div style={{ marginTop: 32, paddingTop: 24, borderTop: '1px solid var(--border)' }}>
+              <button
+                disabled={answered || selectedIndex === null}
+                onClick={handleSubmit}
+                className="btn btn-primary"
+                style={{
+                  width: '100%', padding: '16px', fontSize: 15,
+                  opacity: (answered || selectedIndex === null) ? 0.5 : 1,
+                  boxShadow: (answered || selectedIndex === null) ? 'none' : '0 8px 24px rgba(0, 163, 255, 0.3)'
+                }}
+              >
+                {answered ? (current + 1 === questions.length ? "FINISHING..." : "SUBMITTED") : "SUBMIT TRAJECTORY DECISION"}
+              </button>
+            </div>
           </div>
-        </div>
+        </section>
       </div>
-    </div>
+    </motion.div>
   );
 }

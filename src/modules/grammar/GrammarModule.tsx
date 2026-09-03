@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { useAssessmentStore } from '../../store/assessmentStore';
 import { useSound } from '../../hooks/useSound';
+import { motion } from 'framer-motion';
 
 // Exact rollback to Grammar Assesment.docx — 25 Qs across 5 sections
 interface GrammarQuestion {
@@ -263,7 +264,12 @@ export default function GrammarModule() {
   const pct = Math.round(((current + 1) / questions.length) * 100);
 
   return (
-    <div style={{ maxWidth: 860, height: 'calc(100vh - 3px)', margin: '3px auto 0', display: 'flex', flexDirection: 'column', background: 'var(--surface)', border: '1px solid var(--border)', boxShadow: '0 8px 32px rgba(0,0,0,0.5)' }}>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      style={{ maxWidth: 860, height: 'calc(100vh - 3px)', margin: '3px auto 0', display: 'flex', flexDirection: 'column', background: 'var(--surface)', border: '1px solid var(--border)', boxShadow: '0 8px 32px rgba(0,0,0,0.5)' }}
+    >
       <div style={{ padding: '20px 28px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg)' }}>
         <span style={{ fontFamily: 'monospace', fontSize: 12, fontWeight: 700, textTransform: 'uppercase' }}>{sectionProgress}</span>
         <span style={{ fontFamily: 'monospace', fontSize: 12, color: 'var(--muted)' }}>{current + 1} / {questions.length} • {pct}%</span>
@@ -280,11 +286,13 @@ export default function GrammarModule() {
               else if (i === selectedIndex) { bg = 'var(--fail-bg)'; border = 'var(--fail)'; color = 'var(--fail)'; }
             }
             return (
-              <button key={i} onClick={() => handleSelect(i)} disabled={answered}
+              <motion.button key={i} onClick={() => handleSelect(i)} disabled={answered}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 style={{ display: 'flex', gap: 14, alignItems: 'center', padding: 16, border: `1px solid ${border}`, background: bg, color, cursor: answered ? 'default' : 'pointer', textAlign: 'left', fontSize: 14, fontWeight: 600, boxShadow: '0 8px 32px rgba(0,0,0,0.35)', transition: 'all 0.12s' }}>
                 <span style={{ fontFamily: 'monospace', fontSize: 12, fontWeight: 700, minWidth: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid currentColor', borderRadius: '50%' }}>{String.fromCharCode(65 + i)}</span>
                 <span>{opt}</span>
-              </button>
+              </motion.button>
             );
           })}
         </div>
@@ -294,6 +302,6 @@ export default function GrammarModule() {
         <button onClick={() => navigate('/')} style={{ fontFamily: 'monospace', fontSize: 12, fontWeight: 700, padding: '10px 18px', border: '1px solid var(--border)', background: 'var(--surface)', cursor: 'pointer' }}>ABORT</button>
         <span style={{ fontFamily: 'monospace', fontSize: 11, color: 'var(--muted)', alignSelf: 'center' }}>{answered ? 'Next in 1s…' : 'Select an answer'}</span>
       </div>
-    </div>
+    </motion.div>
   );
 }

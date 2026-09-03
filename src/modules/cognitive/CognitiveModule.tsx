@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { useAssessmentStore } from '../../store/assessmentStore';
 import { useSound } from '../../hooks/useSound';
+import { motion } from 'framer-motion';
 
 const questions = [
   {
@@ -221,11 +222,16 @@ export default function CognitiveModule() {
   }
 
   return (
-    <div style={{
-      maxWidth: 1200, height: 'calc(100vh - 3px)', margin: '3px auto 0',
-      display: 'grid', gridTemplateColumns: '1fr 400px',
-      background: 'var(--surface)', border: '1px solid var(--border)', boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
-    }}>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      style={{
+        maxWidth: 1200, height: 'calc(100vh - 3px)', margin: '3px auto 0',
+        display: 'grid', gridTemplateColumns: '1fr 400px',
+        background: 'var(--surface)', border: '1px solid var(--border)', boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+      }}
+    >
       {/* LEFT PANE — single shared reference document */}
       <div style={{ padding: 48, borderRight: '1px solid var(--border)', overflowY: 'auto', background: 'var(--surface)' }}>
         <div style={{ fontFamily: 'monospace', fontSize: 11, textTransform: 'uppercase', color: 'var(--muted)', borderBottom: '1px solid var(--border)', paddingBottom: 16, marginBottom: 32, letterSpacing: '0.08em' }}>
@@ -259,18 +265,20 @@ export default function CognitiveModule() {
 
           <div style={{ display: 'grid', gap: 12 }}>
             {q.options.map((opt, i) => (
-              <button
+              <motion.button
                 key={i}
                 onClick={() => handleOptionClick(i)}
                 disabled={answered}
                 style={getOptionStyle(i)}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 onMouseEnter={e => { if (!answered) { e.currentTarget.style.background = 'var(--surface-subtle)'; e.currentTarget.style.borderColor = 'var(--accent)'; } }}
                 onMouseLeave={e => { if (!answered) { e.currentTarget.style.background = 'var(--surface)'; e.currentTarget.style.borderColor = 'var(--border)'; } }}
                 onMouseDown={e => { if (!answered) { e.currentTarget.style.transform = 'translate(2px,2px)'; e.currentTarget.style.boxShadow = '2px 2px 0 rgba(0,0,0,0.5)'; } }}
                 onMouseUp={e => { if (!answered) { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '4px 4px 0 rgba(0,0,0,0.5)'; } }}
               >
                 {opt}
-              </button>
+              </motion.button>
             ))}
           </div>
 
@@ -291,6 +299,6 @@ export default function CognitiveModule() {
           </button>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { useAssessmentStore } from '../../store/assessmentStore';
 import { useSound } from '../../hooks/useSound';
+import { motion } from 'framer-motion';
 
 const GRID_SIZE = 4; // 4x4
 const TOTAL_CELLS = GRID_SIZE * GRID_SIZE;
@@ -339,15 +340,19 @@ export default function PatternModule() {
   const countdownSec = (countdownMs / 1000).toFixed(1);
 
   return (
-    <div style={{
-      maxWidth: 700,
-      height: 'calc(100vh - 3px)',
-      margin: '3px auto 0',
-      display: 'flex',
-      flexDirection: 'column',
-      background: 'var(--surface)',
-      border: '1px solid var(--border)',
-      boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      style={{
+        maxWidth: 700,
+        height: 'calc(100vh - 3px)',
+        margin: '3px auto 0',
+        display: 'flex',
+        flexDirection: 'column',
+        background: 'var(--surface)',
+        border: '1px solid var(--border)',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
     }}>
       {/* Header */}
       <div style={{
@@ -492,7 +497,7 @@ export default function PatternModule() {
           }}
         >
           {Array.from({ length: TOTAL_CELLS }, (_, i) => (
-            <div
+            <motion.div
               key={i}
               data-cell={i}
               role="gridcell"
@@ -501,13 +506,15 @@ export default function PatternModule() {
               onClick={() => handleCellClick(i)}
               onKeyDown={(e) => handleCellKeyDown(i, e)}
               style={getCellStyle(i)}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
               {activeCell === i && flashIdx >= 0 && (
                 <span style={{ color: 'var(--surface)', fontWeight: 800, fontSize: 18, fontFamily: 'monospace' }}>
                   {flashIdx + 1}
                 </span>
               )}
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>
@@ -556,6 +563,6 @@ export default function PatternModule() {
           <div style={{ height: 46 }} /> // spacer to keep footer height consistent
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }
