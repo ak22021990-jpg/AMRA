@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAssessmentStore } from '../store/assessmentStore';
 import ZoneVisual from '../components/ZoneVisual';
+import { useSound } from '../hooks/useSound';
 
 const MODULES = [
   {
@@ -32,75 +33,70 @@ const MODULES = [
 ] as const;
 
 const S: Record<string, React.CSSProperties> = {
-  layout: {
-    width: '100%', maxWidth: 1440, height: 'calc(100vh - 3px)',
-    margin: '3px auto 0',
-    display: 'grid', gridTemplateColumns: '380px 1fr',
-    background: 'var(--surface)',
-    border: '2px solid var(--border)',
-    boxShadow: '12px 12px 0 rgba(0,0,0,1)',
-  },
+  layout: {},
+
   sidebar: {
-    borderRight: '2px solid var(--border)',
-    display: 'flex', flexDirection: 'column',
-    background: '#f9f9f9', overflowY: 'auto',
+    // moved to .dashboard-sidebar
   },
   sidebarHeader: {
     padding: '40px 32px',
-    borderBottom: '2px solid var(--border)',
+    borderBottom: '1px solid var(--border)',
   },
   h1: {
-    fontSize: 48, fontWeight: 800, letterSpacing: '-0.04em',
+    fontFamily: 'var(--font-body)',
+    fontSize: 48, fontWeight: 700, letterSpacing: '-0.02em',
     lineHeight: 1, textTransform: 'uppercase' as const, marginBottom: 16,
+    background: 'linear-gradient(180deg, var(--fg), var(--muted))',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
   },
   candidateInfo: { padding: 32, flex: 1 },
   dataRow: {
     display: 'flex', justifyContent: 'space-between', alignItems: 'baseline',
-    padding: '16px 0', borderBottom: '1px solid var(--border)',
+    padding: '16px 0', borderBottom: '1px solid rgba(255,255,255,0.05)',
   },
-  dataLabel: { fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--muted)', textTransform: 'uppercase' as const },
-  dataValue: { fontWeight: 600, fontSize: 14 },
+  dataLabel: { fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--muted)', textTransform: 'uppercase' as const },
+  dataValue: { fontWeight: 500, fontSize: 14, color: 'var(--fg)' },
   punchGrid: { display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8 },
   punchSlot: {
-    aspectRatio: '1', border: '2px solid var(--border)',
+    aspectRatio: '1', border: '1px solid var(--border)', borderRadius: 6,
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     fontFamily: 'var(--font-mono)', fontSize: 14, fontWeight: 700,
-    color: 'var(--muted)', background: 'var(--surface)',
+    color: 'var(--muted)', background: 'var(--surface)', transition: 'all 0.3s'
   },
-  punchSlotDone: { background: 'var(--fg)', color: 'var(--surface)' },
-  ledgerContainer: { overflowY: 'auto' as const, background: 'var(--surface)', display: 'flex', flexDirection: 'column' },
+  punchSlotDone: { background: 'rgba(56, 189, 248, 0.1)', color: 'var(--accent)', borderColor: 'var(--accent)', boxShadow: '0 0 12px rgba(56, 189, 248, 0.3)' },
+  ledgerContainer: { overflowY: 'auto' as const, background: 'var(--bg)', display: 'flex', flexDirection: 'column' },
   ledgerHeader: {
-    padding: '24px 32px', borderBottom: '2px solid var(--border)',
+    padding: '24px 32px', borderBottom: '1px solid var(--border)',
     display: 'grid', gridTemplateColumns: '80px 1fr 140px', gap: 24,
     fontFamily: 'var(--font-mono)', fontSize: 11, textTransform: 'uppercase' as const,
     color: 'var(--muted)', position: 'sticky' as const, top: 0,
-    background: 'var(--surface)', zIndex: 10,
+    background: 'rgba(3, 7, 18, 0.8)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', zIndex: 10,
   },
   moduleRow: {
     display: 'grid', gridTemplateColumns: '120px 1fr',
-    borderBottom: '2px solid var(--border)', cursor: 'pointer', position: 'relative' as const,
+    borderBottom: '1px solid var(--border)', cursor: 'pointer', position: 'relative' as const,
   },
   moduleContent: {
-    padding: '24px 32px',
+    padding: '32px 32px',
     display: 'grid', gridTemplateColumns: '1fr 140px', gap: 24, alignItems: 'center',
   },
-  moduleTitle: { fontSize: 22, fontWeight: 700, letterSpacing: '-0.02em', marginBottom: 8 },
+  moduleTitle: { fontFamily: 'var(--font-body)', fontSize: 24, fontWeight: 500, letterSpacing: '-0.01em', marginBottom: 8, color: 'var(--fg)' },
   moduleDesc: { fontSize: 14, color: 'var(--muted)', maxWidth: 500, lineHeight: 1.5 },
   btnAction: {
-    fontFamily: 'var(--font-mono)', fontSize: 13, fontWeight: 700,
+    fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 700, borderRadius: 6,
     textTransform: 'uppercase' as const, background: 'var(--surface)',
-    border: '2px solid var(--border)', padding: '12px 16px',
-    cursor: 'pointer', boxShadow: '4px 4px 0 rgba(0,0,0,1)',
-    transition: 'all 0.1s', textAlign: 'center' as const, width: '100%',
+    border: '1px solid var(--border)', padding: '12px 16px',
+    cursor: 'pointer', transition: 'all 0.2s', textAlign: 'center' as const, width: '100%',
   },
 };
 
 // ── Splash screen (before registration) ──────────────────────────────────────
 function Splash({ onBegin }: { onBegin: () => void }) {
   return (
-    <div style={{ width: '100%', maxWidth: 1440, margin: '3px auto 0', height: 'calc(100vh - 3px)', display: 'grid', gridTemplateColumns: '380px 1fr', background: 'var(--surface)', border: '2px solid var(--border)', boxShadow: '12px 12px 0 rgba(0,0,0,1)' }}>
+    <div className="dashboard-layout">
       {/* Sidebar */}
-      <aside style={{ borderRight: '2px solid var(--border)', display: 'flex', flexDirection: 'column', background: '#f9f9f9' }}>
+      <aside className="dashboard-sidebar">
         <div style={S.sidebarHeader}>
           <span className="kicker">System // Auth</span>
           <h1 style={S.h1}>AMRA<br />INTEL</h1>
@@ -111,28 +107,34 @@ function Splash({ onBegin }: { onBegin: () => void }) {
         <div style={S.candidateInfo}>
           <div style={S.dataRow}><span style={S.dataLabel}>Zones</span><span style={S.dataValue}>5 Total</span></div>
           <div style={S.dataRow}><span style={S.dataLabel}>Duration</span><span style={S.dataValue}>~26 Min</span></div>
-          <div style={S.dataRow}><span style={S.dataLabel}>Status</span><span style={S.dataValue}>Pending Auth</span></div>
+          <div style={S.dataRow}><span style={S.dataLabel}>Status</span><span style={{...S.dataValue, color: 'var(--warn)'}}>Pending Auth</span></div>
         </div>
       </aside>
-      {/* Main */}
-      <main style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 64, gap: 40 }}>
-        <div style={{ textAlign: 'center', maxWidth: 560 }}>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, textTransform: 'uppercase', color: 'var(--muted)', letterSpacing: '0.1em', display: 'block', marginBottom: 16 }}>Autonomous Mobility Readiness</span>
-          <h2 style={{ fontSize: 48, fontWeight: 800, letterSpacing: '-0.04em', lineHeight: 1, marginBottom: 16 }}>Hiring<br />Assessment</h2>
-          <p style={{ color: 'var(--muted)', fontSize: 16, lineHeight: 1.6 }}>
+      {/* Main — text-only hero */}
+      <main className="anim-gradient-bg" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '64px 24px', gap: 32, background: 'var(--surface)' }}>
+        <div className="anim-fade-in-up" style={{ textAlign: 'center', maxWidth: 560 }}>
+          <span className="kicker anim-fade-in-down stagger-1" style={{ marginBottom: 16, display: 'block' }}>
+            Autonomous Mobility Readiness
+          </span>
+          <h2 style={{ fontFamily: 'var(--font-body)', fontSize: 48, fontWeight: 700, letterSpacing: '-0.02em', lineHeight: 1, marginBottom: 16 }}>
+            Hiring<br />Assessment
+          </h2>
+          <p style={{ color: 'var(--muted)', fontSize: 16, lineHeight: 1.6, fontWeight: 500 }}>
             5 modules. ~26 minutes. Your results shape the hiring decision.
           </p>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, width: '100%', maxWidth: 560 }}>
-          {MODULES.map((mod, i) => (
-            <div key={mod.id} style={{ padding: '14px 16px', background: '#f9f9f9', border: '2px solid var(--border)', gridColumn: i === 4 ? '1 / -1' : 'auto' }}>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--muted)', marginBottom: 4 }}>{mod.num}</div>
-              <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 4 }}>{mod.label}</div>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--accent)' }}>{mod.time}</div>
-            </div>
+        <div className="anim-fade-in-up stagger-2" style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
+          {['Driving', 'Listening', 'Cognitive', 'Pattern', 'Grammar'].map((name, i) => (
+            <span key={name} className={`anim-scale-in stagger-${i + 1}`} style={{
+              padding: '8px 16px', borderRadius: 999, border: '1px solid var(--border)',
+              fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--muted)',
+              background: 'var(--bg)',
+            }}>
+              {name}
+            </span>
           ))}
         </div>
-        <button className="btn btn-primary" style={{ fontSize: 14, padding: '14px 32px' }} onClick={onBegin}>
+        <button className="btn btn-primary anim-fade-in-up stagger-3" style={{ fontSize: 14, padding: '16px 36px', boxShadow: '0 0 15px var(--accent-glow)' }} onClick={onBegin}>
           Begin Assessment
         </button>
       </main>
@@ -145,16 +147,18 @@ function Register({ onRegister }: { onRegister: (name: string, email: string) =>
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [err, setErr] = useState('');
+  const { play } = useSound();
 
   const submit = () => {
-    if (!name.trim()) { setErr('Please enter your name.'); return; }
-    if (!email.trim() || !email.includes('@')) { setErr('Please enter a valid email.'); return; }
+    if (!name.trim()) { setErr('Please enter your name.'); play('wrong'); return; }
+    if (!email.trim() || !email.includes('@')) { setErr('Please enter a valid email.'); play('wrong'); return; }
+    play('click');
     onRegister(name.trim(), email.trim());
   };
 
   return (
-    <div style={{ width: '100%', maxWidth: 1440, margin: '3px auto 0', height: 'calc(100vh - 3px)', display: 'grid', gridTemplateColumns: '380px 1fr', background: 'var(--surface)', border: '2px solid var(--border)', boxShadow: '12px 12px 0 rgba(0,0,0,1)' }}>
-      <aside style={{ borderRight: '2px solid var(--border)', display: 'flex', flexDirection: 'column', background: '#f9f9f9' }}>
+    <div className="dashboard-layout">
+      <aside className="dashboard-sidebar">
         <div style={S.sidebarHeader}>
           <span className="kicker">System // Auth</span>
           <h1 style={S.h1}>AMRA<br />INTEL</h1>
@@ -162,28 +166,28 @@ function Register({ onRegister }: { onRegister: (name: string, email: string) =>
         <div style={S.candidateInfo}>
           <div style={S.dataRow}><span style={S.dataLabel}>Zones</span><span style={S.dataValue}>5 Total</span></div>
           <div style={S.dataRow}><span style={S.dataLabel}>Duration</span><span style={S.dataValue}>~26 Min</span></div>
-          <div style={S.dataRow}><span style={S.dataLabel}>Status</span><span style={S.dataValue}>Pending Auth</span></div>
+          <div style={S.dataRow}><span style={S.dataLabel}>Status</span><span style={{...S.dataValue, color: 'var(--warn)'}}>Pending Auth</span></div>
         </div>
       </aside>
-      <main style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 64 }}>
-        <div style={{ width: '100%', maxWidth: 480 }}>
-          <span className="kicker">Candidate Registration</span>
-          <h2 style={{ fontSize: 36, fontWeight: 800, letterSpacing: '-0.03em', lineHeight: 1, marginBottom: 8, marginTop: 8 }}>Before you start</h2>
-          <p style={{ color: 'var(--muted)', marginBottom: 32, fontSize: 15 }}>
+      <main style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '64px 24px', background: 'var(--surface)' }}>
+        <div className="anim-fade-in-up" style={{ width: '100%', maxWidth: 480 }}>
+          <span className="kicker anim-fade-in-down stagger-1">Candidate Registration</span>
+          <h2 className="anim-fade-in-up stagger-2" style={{ fontFamily: 'var(--font-body)', fontSize: 36, fontWeight: 700, letterSpacing: '-0.02em', lineHeight: 1, marginBottom: 12, marginTop: 8 }}>Before you start</h2>
+          <p className="anim-fade-in-up stagger-3" style={{ color: 'var(--muted)', marginBottom: 32, fontSize: 16 }}>
             Enter your details. Your score and classification will appear in the final report.
           </p>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+          <div className="anim-fade-in-up stagger-4" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
             <div>
               <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: 11, textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 8 }}>Full Name</label>
-              <input value={name} onChange={e => setName(e.target.value)} placeholder="Candidate name" onKeyDown={e => e.key === 'Enter' && submit()} />
+              <input value={name} onChange={e => setName(e.target.value)} placeholder="Candidate name" onKeyDown={e => e.key === 'Enter' && submit()} style={{ background: 'var(--bg)' }} />
             </div>
             <div>
               <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: 11, textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 8 }}>Email</label>
-              <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="name@example.com" onKeyDown={e => e.key === 'Enter' && submit()} />
+              <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="name@example.com" onKeyDown={e => e.key === 'Enter' && submit()} style={{ background: 'var(--bg)' }} />
             </div>
           </div>
-          {err && <p style={{ color: 'var(--fail)', fontFamily: 'var(--font-mono)', fontSize: 13, marginBottom: 16 }}>{err}</p>}
-          <button className="btn btn-primary" style={{ width: '100%', padding: '14px', fontSize: 14 }} onClick={submit}>
+          {err && <p className="anim-shake" style={{ color: 'var(--fail)', fontFamily: 'var(--font-mono)', fontSize: 13, marginBottom: 16 }}>{err}</p>}
+          <button className="btn btn-primary anim-fade-in-up stagger-5" style={{ width: '100%', padding: '16px', fontSize: 14, boxShadow: '0 0 15px var(--accent-glow)' }} onClick={submit}>
             Begin Assessment →
           </button>
         </div>
@@ -209,9 +213,9 @@ export default function Dashboard() {
   }
 
   return (
-    <div style={S.layout}>
+    <div className="dashboard-layout">
       {/* ── Left Sidebar ── */}
-      <aside style={S.sidebar}>
+      <aside className="dashboard-sidebar anim-fade-in-up">
         <div style={S.sidebarHeader}>
           <span className="kicker">System // Active</span>
           <h1 style={S.h1}>AMRA<br />INTEL</h1>
@@ -263,14 +267,14 @@ export default function Dashboard() {
       {/* ── Right Ledger ── */}
       <main style={S.ledgerContainer}>
         {/* Sticky header */}
-        <div style={S.ledgerHeader}>
+        <div className="anim-fade-in-up stagger-1" style={S.ledgerHeader}>
           <div>Ref</div>
           <div>Assessment Details</div>
           <div style={{ textAlign: 'right' }}>Action</div>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-          {MODULES.map(mod => {
+          {MODULES.map((mod, i) => {
             const done = results[mod.id]?.completed;
             const pct = done ? Math.round((results[mod.id].score / results[mod.id].total) * 100) : null;
             const isHovered = hovered === mod.id;
@@ -278,20 +282,21 @@ export default function Dashboard() {
             return (
               <div
                 key={mod.id}
-                style={S.moduleRow}
+                className={`anim-fade-in-left stagger-${i + 1}`}
+                style={{ ...S.moduleRow, transition: 'all 0.3s ease' }}
                 onClick={() => navigate(mod.path)}
                 onMouseEnter={() => setHovered(mod.id)}
                 onMouseLeave={() => setHovered(null)}
               >
                 {/* Zone visual */}
-                <div style={{ borderRight: '2px solid var(--border)', minHeight: 120 }}>
+                <div style={{ borderRight: '1px solid var(--border)', minHeight: 120 }}>
                   <ZoneVisual variant={mod.id} active={isHovered} />
                 </div>
 
                 {/* Content */}
                 <div style={{
                   ...S.moduleContent,
-                  background: isHovered ? '#fafafa' : 'var(--surface)',
+                  background: isHovered ? 'var(--surface-subtle)' : 'transparent',
                   transition: 'background 0.2s',
                 }}>
                   <div>
@@ -319,8 +324,8 @@ export default function Dashboard() {
                       <button
                         style={{
                           ...S.btnAction,
-                          background: isHovered ? 'var(--accent)' : 'var(--surface)',
-                          color: isHovered ? '#fff' : 'var(--fg)',
+                          background: isHovered ? 'var(--accent-bg)' : 'var(--surface)',
+                          color: isHovered ? 'var(--fg)' : 'var(--fg)',
                           borderColor: isHovered ? 'var(--accent)' : 'var(--border)',
                         }}
                         onClick={e => { e.stopPropagation(); navigate(mod.path); }}
