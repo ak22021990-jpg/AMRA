@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { useAssessmentStore } from '../../store/assessmentStore';
+import { useSound } from '../../hooks/useSound';
 
 const GRID_SIZE = 4; // 4x4
 const TOTAL_CELLS = GRID_SIZE * GRID_SIZE;
@@ -15,9 +16,9 @@ interface Level {
 }
 
 const LEVELS: Level[] = [
-  { label: 'Easy', color: '#067647', bg: '#ecfdf3', sequenceLength: 4, flashMs: 800, rounds: 2 },
-  { label: 'Medium', color: '#b54708', bg: '#fffaeb', sequenceLength: 6, flashMs: 600, rounds: 2 },
-  { label: 'Hard', color: '#7c3aed', bg: '#f5f3ff', sequenceLength: 8, flashMs: 400, rounds: 2 },
+  { label: 'Easy', color: 'var(--pass)', bg: 'var(--pass-bg)', sequenceLength: 4, flashMs: 800, rounds: 2 },
+  { label: 'Medium', color: 'var(--warn)', bg: 'rgba(234, 179, 8, 0.1)', sequenceLength: 6, flashMs: 600, rounds: 2 },
+  { label: 'Hard', color: 'var(--accent)', bg: 'rgba(56, 189, 248, 0.1)', sequenceLength: 8, flashMs: 400, rounds: 2 },
 ];
 
 type Phase = 'intro' | 'watch' | 'recall' | 'correct' | 'wrong' | 'done';
@@ -33,7 +34,8 @@ function generateSequence(length: number): number[] {
 
 export default function PatternModule() {
   const navigate = useNavigate();
-  const { candidateName, recordResult } = useAssessmentStore();
+  const { candidateName, recordResult, recordAnswer } = useAssessmentStore();
+  const { play } = useSound();
 
   const [levelIdx, setLevelIdx] = useState(0);
   const [roundInLevel, setRoundInLevel] = useState(0);
@@ -111,6 +113,9 @@ export default function PatternModule() {
       setPhase('wrong');
       const newResults = [...results, false];
       setResults(newResults);
+      // Sound + streak tracking
+      play('wrong');
+      recordAnswer(false);
       setTimeout(() => advanceRound(newResults), 1600);
       return;
     }
@@ -122,6 +127,9 @@ export default function PatternModule() {
       setPhase('correct');
       const newResults = [...results, true];
       setResults(newResults);
+      // Sound + streak tracking
+      play('correct');
+      recordAnswer(true);
       setTimeout(() => advanceRound(newResults), 1200);
     }
   };
@@ -189,24 +197,24 @@ export default function PatternModule() {
   if (phase === 'done') {
     const score = results.filter(Boolean).length;
     return (
-      <div style={{
+      <div className="anim-scale-in" style={{
         maxWidth: 700,
         height: 'calc(100vh - 3px)',
         margin: '3px auto 0',
         display: 'flex',
         flexDirection: 'column',
-        background: '#fff',
-        border: '2px solid #111',
-        boxShadow: '12px 12px 0 rgba(0,0,0,1)',
+        background: 'var(--surface)',
+        border: '1px solid var(--border)',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
       }}>
         {/* Header */}
         <div style={{
           padding: 24,
-          borderBottom: '2px solid #111',
+          borderBottom: '1px solid var(--border)',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          background: '#f9f9f9',
+          background: 'var(--bg)',
         }}>
           <span style={{ fontFamily: 'monospace', fontSize: 12, fontWeight: 700, textTransform: 'uppercase' as const }}>
             MEM-SEQ // COMPLETE
@@ -216,15 +224,15 @@ export default function PatternModule() {
         {/* Content */}
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 40, textAlign: 'center' }}>
           <h2 style={{ fontSize: 24, letterSpacing: '-0.02em', marginBottom: 8 }}>Assessment Complete</h2>
-          <p style={{ color: '#666', fontSize: 15, marginBottom: 32 }}>Pattern Recognition finished.</p>
+          <p style={{ color: 'var(--muted)', fontSize: 15, marginBottom: 32 }}>Pattern Recognition finished.</p>
 
           <div style={{
             display: 'flex',
             gap: 40,
             marginBottom: 32,
             padding: '24px 40px',
-            border: '2px solid #111',
-            boxShadow: '4px 4px 0 rgba(0,0,0,1)',
+            border: '1px solid var(--border)',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
           }}>
             <div>
               <div style={{ fontFamily: 'monospace', fontSize: 12, fontWeight: 700, textTransform: 'uppercase' as const, marginBottom: 4 }}>Score</div>
@@ -240,11 +248,11 @@ export default function PatternModule() {
             {results.map((r, i) => (
               <span key={i} style={{
                 width: 32, height: 32,
-                background: r ? '#008833' : '#d92211',
-                border: '2px solid #111',
+                background: r ? 'var(--pass)' : 'var(--fail)',
+                border: '1px solid var(--border)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                color: '#fff', fontWeight: 700, fontSize: 14,
-                boxShadow: '2px 2px 0 rgba(0,0,0,1)',
+                color: 'var(--surface)', fontWeight: 700, fontSize: 14,
+                boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
               }}>{r ? '✓' : '✗'}</span>
             ))}
           </div>
@@ -256,11 +264,11 @@ export default function PatternModule() {
               fontSize: 13,
               fontWeight: 700,
               textTransform: 'uppercase' as const,
-              background: '#0055ff',
-              color: '#fff',
-              border: '2px solid #111',
+              background: 'var(--accent)',
+              color: 'var(--surface)',
+              border: '1px solid var(--border)',
               padding: '12px 32px',
-              boxShadow: '4px 4px 0 rgba(0,0,0,1)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
               cursor: 'pointer',
             }}
           >
@@ -277,37 +285,37 @@ export default function PatternModule() {
     const fb = feedback[cellIdx];
     const isSelected = selected.includes(cellIdx);
 
-    let bg = '#fff';
-    let borderColor = '#111';
-    let boxShadow = '4px 4px 0 rgba(0,0,0,1)';
+    let bg = 'var(--surface)';
+    let borderColor = 'var(--border)';
+    let boxShadow = '4px 4px 0 rgba(0,0,0,0.5)';
     let transform = 'none';
 
     if (isFlashing) {
       // .cell.active
-      bg = '#111';
-      borderColor = '#111';
+      bg = 'var(--border)';
+      borderColor = 'var(--border)';
       boxShadow = '0 0 0';
       transform = 'translate(4px,4px)';
     } else if (fb === 'correct') {
       // .cell.correct-recall
-      bg = '#008833';
-      borderColor = '#008833';
+      bg = 'var(--pass)';
+      borderColor = 'var(--pass)';
       boxShadow = '0 0 0';
       transform = 'translate(4px,4px)';
     } else if (fb === 'wrong') {
       // .cell.wrong-recall
-      bg = '#d92211';
-      borderColor = '#d92211';
+      bg = 'var(--fail)';
+      borderColor = 'var(--fail)';
       boxShadow = '0 0 0';
       transform = 'translate(4px,4px)';
     } else if (fb === 'missed') {
-      bg = '#444';
-      borderColor = '#444';
+      bg = 'var(--muted)';
+      borderColor = 'var(--muted)';
       boxShadow = '0 0 0';
       transform = 'translate(4px,4px)';
     } else if (phase === 'recall' && isSelected) {
-      bg = '#0055ff';
-      borderColor = '#0055ff';
+      bg = 'var(--accent)';
+      borderColor = 'var(--accent)';
       boxShadow = '0 0 0';
       transform = 'translate(4px,4px)';
     }
@@ -337,18 +345,18 @@ export default function PatternModule() {
       margin: '3px auto 0',
       display: 'flex',
       flexDirection: 'column',
-      background: '#fff',
-      border: '2px solid #111',
-      boxShadow: '12px 12px 0 rgba(0,0,0,1)',
+      background: 'var(--surface)',
+      border: '1px solid var(--border)',
+      boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
     }}>
       {/* Header */}
       <div style={{
         padding: 24,
-        borderBottom: '2px solid #111',
+        borderBottom: '1px solid var(--border)',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        background: '#f9f9f9',
+        background: 'var(--bg)',
         flexShrink: 0,
       }}>
         <span style={{
@@ -364,7 +372,7 @@ export default function PatternModule() {
             fontFamily: 'monospace',
             fontSize: 16,
             fontWeight: 700,
-            color: '#d93025',
+            color: 'var(--fail)',
           }}>
             T - {countdownSec}s
           </span>
@@ -374,7 +382,7 @@ export default function PatternModule() {
             fontFamily: 'monospace',
             fontSize: 14,
             fontWeight: 700,
-            color: '#111',
+            color: 'var(--fg)',
           }}>
             {selected.length} / {sequence.length} selected
           </span>
@@ -384,7 +392,7 @@ export default function PatternModule() {
             fontFamily: 'monospace',
             fontSize: 14,
             fontWeight: 700,
-            color: phase === 'correct' ? '#008833' : '#d92211',
+            color: phase === 'correct' ? 'var(--pass)' : 'var(--fail)',
           }}>
             {phase === 'correct' ? '✓ CORRECT' : '✗ WRONG'}
           </span>
@@ -395,7 +403,7 @@ export default function PatternModule() {
       <div style={{
         padding: '40px',
         textAlign: 'center',
-        borderBottom: '2px solid #111',
+        borderBottom: '1px solid var(--border)',
         flexShrink: 0,
       }}>
         {phase === 'intro' && (
@@ -403,7 +411,7 @@ export default function PatternModule() {
             <h2 style={{ fontSize: 24, letterSpacing: '-0.02em', marginBottom: 8 }}>
               Ready for {level.label}?
             </h2>
-            <p style={{ color: '#666', fontSize: 15, marginBottom: 20 }}>
+            <p style={{ color: 'var(--muted)', fontSize: 15, marginBottom: 20 }}>
               Memorize {level.sequenceLength} cells · Round {roundInLevel + 1} of {level.rounds}
             </p>
             <button
@@ -413,11 +421,11 @@ export default function PatternModule() {
                 fontSize: 13,
                 fontWeight: 700,
                 textTransform: 'uppercase' as const,
-                background: '#0055ff',
-                color: '#fff',
-                border: '2px solid #111',
+                background: 'var(--accent)',
+                color: 'var(--surface)',
+                border: '1px solid var(--border)',
                 padding: '12px 32px',
-                boxShadow: '4px 4px 0 rgba(0,0,0,1)',
+                boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
                 cursor: 'pointer',
               }}
             >
@@ -430,7 +438,7 @@ export default function PatternModule() {
             <h2 style={{ fontSize: 24, letterSpacing: '-0.02em', marginBottom: 8 }}>
               Memorize the Pattern
             </h2>
-            <p style={{ color: '#666', fontSize: 15 }}>
+            <p style={{ color: 'var(--muted)', fontSize: 15 }}>
               Watch carefully — the pattern will disappear.
             </p>
           </>
@@ -440,25 +448,25 @@ export default function PatternModule() {
             <h2 style={{ fontSize: 24, letterSpacing: '-0.02em', marginBottom: 8 }}>
               Reconstruct the Sequence
             </h2>
-            <p style={{ color: '#666', fontSize: 15 }}>
+            <p style={{ color: 'var(--muted)', fontSize: 15 }}>
               Select the tiles in the exact order they appeared.
             </p>
           </>
         )}
         {phase === 'correct' && (
           <>
-            <h2 style={{ fontSize: 24, letterSpacing: '-0.02em', marginBottom: 8, color: '#008833' }}>
+            <h2 style={{ fontSize: 24, letterSpacing: '-0.02em', marginBottom: 8, color: 'var(--pass)' }}>
               ✓ Correct!
             </h2>
-            <p style={{ color: '#666', fontSize: 15 }}>Moving to next round…</p>
+            <p style={{ color: 'var(--muted)', fontSize: 15 }}>Moving to next round…</p>
           </>
         )}
         {phase === 'wrong' && (
           <>
-            <h2 style={{ fontSize: 24, letterSpacing: '-0.02em', marginBottom: 8, color: '#d92211' }}>
+            <h2 style={{ fontSize: 24, letterSpacing: '-0.02em', marginBottom: 8, color: 'var(--fail)' }}>
               ✗ Incorrect
             </h2>
-            <p style={{ color: '#666', fontSize: 15 }}>Correct cells shown — moving on…</p>
+            <p style={{ color: 'var(--muted)', fontSize: 15 }}>Correct cells shown — moving on…</p>
           </>
         )}
       </div>
@@ -470,7 +478,7 @@ export default function PatternModule() {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        background: '#f4f4f0',
+        background: 'var(--bg)',
       }}>
         <div
           role="grid"
@@ -495,7 +503,7 @@ export default function PatternModule() {
               style={getCellStyle(i)}
             >
               {activeCell === i && flashIdx >= 0 && (
-                <span style={{ color: '#fff', fontWeight: 800, fontSize: 18, fontFamily: 'monospace' }}>
+                <span style={{ color: 'var(--surface)', fontWeight: 800, fontSize: 18, fontFamily: 'monospace' }}>
                   {flashIdx + 1}
                 </span>
               )}
@@ -509,8 +517,8 @@ export default function PatternModule() {
         padding: 24,
         display: 'flex',
         justifyContent: 'center',
-        background: '#fff',
-        borderTop: '2px solid #111',
+        background: 'var(--surface)',
+        borderTop: '1px solid var(--border)',
         flexShrink: 0,
       }}>
         {isRecallPhase && (
@@ -533,11 +541,11 @@ export default function PatternModule() {
               fontSize: 13,
               fontWeight: 700,
               textTransform: 'uppercase' as const,
-              background: '#0055ff',
-              color: '#fff',
-              border: '2px solid #111',
+              background: 'var(--accent)',
+              color: 'var(--surface)',
+              border: '1px solid var(--border)',
               padding: '12px 32px',
-              boxShadow: '4px 4px 0 rgba(0,0,0,1)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
               cursor: 'pointer',
             }}
           >

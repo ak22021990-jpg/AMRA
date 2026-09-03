@@ -1,11 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { useAssessmentStore } from '../../store/assessmentStore';
+import { useSound } from '../../hooks/useSound';
 
 const questions = [
   {
     sectionName: 'Customer Complaint — Disputed Charge',
-    audioFile: '/audio/Customer Complaint - Audio 2 (2).mp3',
+    audioFile: `${import.meta.env.BASE_URL}audio/Customer Complaint - Audio 2 (2).mp3`,
     instruction: 'Listen to the customer call, then answer the question.',
     question: 'How much was the disputed charge?',
     options: ['$24.80', '$26.40', '$28.40', '$38.40'],
@@ -16,7 +17,7 @@ const questions = [
   },
   {
     sectionName: 'Fraud Conversation — Account Compromise',
-    audioFile: '/audio/Fraud Related Conversation - Audio 3.mp3',
+    audioFile: `${import.meta.env.BASE_URL}audio/Fraud Related Conversation - Audio 3.mp3`,
     instruction: 'Listen to the fraud conversation, then answer the question.',
     question: "What were the last four digits of the customer's original phone number?",
     options: ['2241', '4421', '4412', '4221'],
@@ -27,7 +28,7 @@ const questions = [
   },
   {
     sectionName: 'Multiple Instructions — Agent Procedure',
-    audioFile: '/audio/Instructions With Multiple Details - Audio 5.mp3',
+    audioFile: `${import.meta.env.BASE_URL}audio/Instructions With Multiple Details - Audio 5.mp3`,
     instruction: 'Listen to the agent procedure recording, then answer the question.',
     question: 'What should the agent NOT do while reviewing the case?',
     options: [
@@ -112,8 +113,8 @@ function WaveformPanel({
   return (
     <div
       style={{
-        background: '#f9f9f9',
-        borderBottom: '2px solid #111',
+        background: 'var(--bg)',
+        borderBottom: '1px solid var(--border)',
         padding: '40px',
         display: 'flex',
         flexDirection: 'column',
@@ -143,7 +144,7 @@ function WaveformPanel({
             style={{
               flex: 1,
               height: `${h}%`,
-              background: i % 2 === 1 ? '#0055ff' : '#111',
+              background: i % 2 === 1 ? 'var(--accent)' : 'var(--border)',
               borderRadius: 2,
               transition: playing ? 'height 0.1s ease' : 'height 0.3s ease',
             }}
@@ -157,10 +158,10 @@ function WaveformPanel({
           style={{
             width: 48,
             height: 48,
-            border: '2px solid #111',
-            background: '#fff',
+            border: '1px solid var(--border)',
+            background: 'var(--surface)',
             fontSize: 20,
-            boxShadow: '4px 4px 0 rgba(0,0,0,1)',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
@@ -174,11 +175,11 @@ function WaveformPanel({
           style={{
             width: 48,
             height: 48,
-            border: '2px solid #111',
-            background: '#111',
-            color: '#fff',
+            border: '1px solid var(--border)',
+            background: 'var(--border)',
+            color: 'var(--surface)',
             fontSize: 20,
-            boxShadow: '4px 4px 0 rgba(0,0,0,1)',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
@@ -194,7 +195,8 @@ function WaveformPanel({
 
 export default function ListeningModule() {
   const navigate = useNavigate();
-  const { candidateName, recordResult } = useAssessmentStore();
+  const { candidateName, recordResult, recordAnswer } = useAssessmentStore();
+  const { play } = useSound();
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState<boolean[]>([]);
   const [hasPlayed, setHasPlayed] = useState(false);
@@ -226,6 +228,10 @@ export default function ListeningModule() {
     const newAnswers = [...answers, isCorrect];
     setAnswers(newAnswers);
 
+    // Sound + streak tracking
+    play(isCorrect ? 'correct' : 'wrong');
+    recordAnswer(isCorrect);
+
     setTimeout(() => {
       if (current + 1 < questions.length) {
         setCurrent(current + 1);
@@ -249,14 +255,14 @@ export default function ListeningModule() {
   const optionStyle = (idx: number): React.CSSProperties => {
     const base: React.CSSProperties = {
       padding: 16,
-      border: '2px solid #111',
-      background: '#fff',
+      border: '1px solid var(--border)',
+      background: 'var(--surface)',
       cursor: answered || !hasPlayed ? 'default' : 'pointer',
       fontSize: 15,
       fontWeight: 600,
       display: 'flex',
       gap: 16,
-      boxShadow: '4px 4px 0 rgba(0,0,0,1)',
+      boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
       alignItems: 'center',
       transition: 'background 0.1s, border-color 0.1s',
     };
@@ -264,19 +270,19 @@ export default function ListeningModule() {
       const correct = idx === q.correctIndex;
       return {
         ...base,
-        border: `2px solid ${correct ? '#008833' : '#d92211'}`,
-        background: correct ? '#e6f6ec' : '#fae8e6',
-        color: correct ? '#008833' : '#d92211',
-        boxShadow: '2px 2px 0 rgba(0,0,0,1)',
+        border: `2px solid ${correct ? 'var(--pass)' : 'var(--fail)'}`,
+        background: correct ? 'var(--pass-bg)' : 'var(--fail-bg)',
+        color: correct ? 'var(--pass)' : 'var(--fail)',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
       };
     }
     if (answered && idx === q.correctIndex) {
       return {
         ...base,
-        border: '2px solid #008833',
-        background: '#e6f6ec',
-        color: '#008833',
-        boxShadow: '2px 2px 0 rgba(0,0,0,1)',
+        border: '1px solid var(--pass)',
+        background: 'var(--pass-bg)',
+        color: 'var(--pass)',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
       };
     }
     return base;
@@ -288,9 +294,9 @@ export default function ListeningModule() {
         maxWidth: 1000,
         height: 'calc(100vh - 3px)',
         margin: '3px auto 0',
-        background: '#fff',
-        border: '2px solid #111',
-        boxShadow: '12px 12px 0 rgba(0,0,0,1)',
+        background: 'var(--surface)',
+        border: '1px solid var(--border)',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
         display: 'grid',
         gridTemplateRows: 'auto auto 1fr auto',
         overflow: 'hidden',
@@ -300,7 +306,7 @@ export default function ListeningModule() {
       <div
         style={{
           padding: '24px 32px',
-          borderBottom: '2px solid #111',
+          borderBottom: '1px solid var(--border)',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
@@ -323,7 +329,7 @@ export default function ListeningModule() {
               fontSize: 14,
               fontWeight: 700,
               textTransform: 'uppercase',
-              color: '#555',
+              color: 'var(--muted)',
             }}
           >
             // Listening Skills
@@ -334,7 +340,7 @@ export default function ListeningModule() {
             fontFamily: 'monospace',
             fontSize: 24,
             fontWeight: 700,
-            color: '#111',
+            color: 'var(--fg)',
           }}
         >
           {formatTime(elapsed)}
@@ -355,7 +361,7 @@ export default function ListeningModule() {
             fontFamily: 'monospace',
             fontSize: 12,
             textTransform: 'uppercase',
-            color: '#888',
+            color: 'var(--muted)',
             marginBottom: 12,
           }}
         >
@@ -379,12 +385,12 @@ export default function ListeningModule() {
               display: 'inline-flex',
               alignItems: 'center',
               gap: 8,
-              background: '#fff8e6',
-              border: '1px solid #ffc65c',
+              background: 'rgba(234, 179, 8, 0.1)',
+              border: '1px solid var(--warn)',
               padding: '8px 16px',
               fontSize: 13,
               fontWeight: 700,
-              color: '#92400e',
+              color: 'var(--warn)',
               marginBottom: 16,
             }}
           >
@@ -426,22 +432,22 @@ export default function ListeningModule() {
       <div
         style={{
           padding: '24px 40px',
-          borderTop: '2px solid #111',
+          borderTop: '1px solid var(--border)',
           display: 'flex',
           justifyContent: 'space-between',
-          background: '#f9f9f9',
+          background: 'var(--bg)',
         }}
       >
         <button
           onClick={() => navigate('/')}
           style={{
             padding: '10px 20px',
-            border: '2px solid #111',
-            background: '#fff',
+            border: '1px solid var(--border)',
+            background: 'var(--surface)',
             fontWeight: 700,
             fontSize: 13,
             cursor: 'pointer',
-            boxShadow: '4px 4px 0 rgba(0,0,0,1)',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
             fontFamily: 'monospace',
             textTransform: 'uppercase',
           }}
@@ -458,13 +464,13 @@ export default function ListeningModule() {
           disabled={!hasPlayed || answered}
           style={{
             padding: '10px 20px',
-            border: '2px solid #111',
-            background: '#0055ff',
-            color: '#fff',
+            border: '1px solid var(--border)',
+            background: 'var(--accent)',
+            color: 'var(--surface)',
             fontWeight: 700,
             fontSize: 13,
             cursor: !hasPlayed || answered ? 'default' : 'pointer',
-            boxShadow: '4px 4px 0 rgba(0,0,0,1)',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
             fontFamily: 'monospace',
             textTransform: 'uppercase',
             opacity: !hasPlayed || answered ? 0.5 : 1,

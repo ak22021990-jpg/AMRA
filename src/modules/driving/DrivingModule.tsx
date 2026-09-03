@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { useAssessmentStore } from '../../store/assessmentStore';
+import { useSound } from '../../hooks/useSound';
 
 const questions = [
   {
@@ -63,7 +64,8 @@ const TOTAL_SECONDS = 180;
 
 export default function DrivingModule() {
   const navigate = useNavigate();
-  const { candidateName, recordResult } = useAssessmentStore();
+  const { candidateName, recordResult, recordAnswer } = useAssessmentStore();
+  const { play } = useSound();
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState<boolean[]>([]);
   const [answered, setAnswered] = useState(false);
@@ -99,6 +101,10 @@ export default function DrivingModule() {
     const newAnswers = [...answers, isCorrect];
     setAnswers(newAnswers);
 
+    // Sound + streak tracking
+    play(isCorrect ? 'correct' : 'wrong');
+    recordAnswer(isCorrect);
+
     setTimeout(() => {
       if (current + 1 < questions.length) {
         setCurrent(current + 1);
@@ -131,28 +137,28 @@ export default function DrivingModule() {
   if (done) {
     const score = answers.filter(Boolean).length;
     return (
-      <div style={{
+      <div className="anim-scale-in" style={{
         width: '100%', maxWidth: 1440, height: 'calc(100vh - 3px)',
         margin: '3px auto 0', display: 'grid', gridTemplateRows: 'auto 1fr',
-        background: '#ffffff', border: '2px solid #111111',
-        boxShadow: '12px 12px 0 rgba(0,0,0,1)', fontFamily: 'var(--font-mono)',
+        background: 'var(--surface)', border: '1px solid var(--border)',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.5)', fontFamily: 'var(--font-mono)',
       }}>
         <div style={{
-          padding: '24px 32px', borderBottom: '2px solid #111',
+          padding: '24px 32px', borderBottom: '1px solid var(--border)',
           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
         }}>
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: 14, textTransform: 'uppercase', fontWeight: 700, display: 'flex', gap: 16 }}>
-            <span>ZONE 01</span><span style={{ color: '#666' }}>//</span><span>US Driving Behavior</span>
+            <span>ZONE 01</span><span style={{ color: 'var(--muted)' }}>//</span><span>US Driving Behavior</span>
           </div>
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: 24, fontWeight: 700, color: '#d93025' }}>COMPLETE</div>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: 24, fontWeight: 700, color: 'var(--fail)' }}>COMPLETE</div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 48 }}>
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#666', textTransform: 'uppercase', marginBottom: 16 }}>Module Complete</div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--muted)', textTransform: 'uppercase', marginBottom: 16 }}>Module Complete</div>
             <div style={{ fontSize: 72, fontWeight: 700, letterSpacing: '-0.04em', lineHeight: 1 }}>
               {score}/{questions.length}
             </div>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 14, color: '#666', marginTop: 8 }}>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 14, color: 'var(--muted)', marginTop: 8 }}>
               {Math.round((score / questions.length) * 100)}% correct
             </div>
             <div style={{ display: 'flex', gap: 16, justifyContent: 'center', marginTop: 32 }}>
@@ -161,8 +167,8 @@ export default function DrivingModule() {
                 style={{
                   fontFamily: 'var(--font-mono)', fontSize: 13, fontWeight: 700,
                   padding: '12px 24px', textTransform: 'uppercase' as const,
-                  border: '2px solid #111', cursor: 'pointer', background: '#fff',
-                  boxShadow: '4px 4px 0 rgba(0,0,0,1)',
+                  border: '1px solid var(--border)', cursor: 'pointer', background: 'var(--surface)',
+                  boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
                 }}
               >
                 BACK TO DASHBOARD
@@ -178,18 +184,18 @@ export default function DrivingModule() {
     <div style={{
       width: '100%', maxWidth: 1440, height: 'calc(100vh - 3px)',
       margin: '3px auto 0', display: 'grid', gridTemplateRows: 'auto 1fr',
-      background: '#ffffff', border: '2px solid #111111',
-      boxShadow: '12px 12px 0 rgba(0,0,0,1)',
+      background: 'var(--surface)', border: '1px solid var(--border)',
+      boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
     }}>
       {/* Header */}
       <div style={{
-        padding: '24px 32px', borderBottom: '2px solid #111',
+        padding: '24px 32px', borderBottom: '1px solid var(--border)',
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
       }}>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: 14, textTransform: 'uppercase' as const, fontWeight: 700, display: 'flex', gap: 16 }}>
-          <span>ZONE 01</span><span style={{ color: '#666' }}>//</span><span>US Driving Behavior</span>
+          <span>ZONE 01</span><span style={{ color: 'var(--muted)' }}>//</span><span>US Driving Behavior</span>
         </div>
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: 24, fontWeight: 700, color: '#d93025' }}>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: 24, fontWeight: 700, color: 'var(--fail)' }}>
           {formatTime(timeLeft)}
         </div>
       </div>
@@ -198,13 +204,13 @@ export default function DrivingModule() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', overflow: 'hidden' }}>
         {/* Sim viewport */}
         <div style={{
-          borderRight: '2px solid #111', background: '#000',
+          borderRight: '1px solid var(--border)', background: 'var(--bg)',
           position: 'relative', overflow: 'hidden',
           display: 'flex', flexDirection: 'column' as const,
         }}>
           <video
             key={q.videoFile}
-            src={`/video/${q.videoFile}`}
+            src={`${import.meta.env.BASE_URL}video/${q.videoFile}`}
             autoPlay
             muted
             loop
@@ -230,10 +236,10 @@ export default function DrivingModule() {
         {/* Controls panel */}
         <div style={{
           padding: 32, display: 'flex', flexDirection: 'column' as const,
-          background: '#f9f9f9', overflow: 'auto',
+          background: 'var(--bg)', overflow: 'auto',
         }}>
           {/* Q label */}
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#666', marginBottom: 12, textTransform: 'uppercase' as const }}>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--muted)', marginBottom: 12, textTransform: 'uppercase' as const }}>
             Scenario {current + 1} / {questions.length}
           </div>
 
@@ -245,15 +251,15 @@ export default function DrivingModule() {
           {/* Options */}
           <div>
             {q.options.map((opt, i) => {
-              let bg = '#fff';
-              let borderColor = '#111111';
+              let bg = 'var(--surface)';
+              let borderColor = 'var(--border)';
               if (answered && selectedIndex !== null) {
                 if (i === q.correctIndex) {
-                  bg = 'var(--pass-bg, #e6f9ed)';
-                  borderColor = 'var(--pass, #008833)';
+                  bg = 'var(--pass-bg)';
+                  borderColor = 'var(--pass)';
                 } else if (i === selectedIndex && i !== q.correctIndex) {
-                  bg = 'var(--fail-bg, #fde8e6)';
-                  borderColor = 'var(--fail, #d92211)';
+                  bg = 'var(--fail-bg)';
+                  borderColor = 'var(--fail)';
                 }
               }
               return (
@@ -266,32 +272,32 @@ export default function DrivingModule() {
                     border: `2px solid ${borderColor}`, background: bg,
                     marginBottom: 12, cursor: answered ? 'default' : 'pointer',
                     fontSize: 15, fontWeight: 600, textAlign: 'left' as const,
-                    boxShadow: '4px 4px 0 rgba(0,0,0,1)',
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
                     transition: 'all 0.1s',
                     fontFamily: 'inherit',
                   }}
                   onMouseEnter={e => {
                     if (!answered) {
-                      (e.currentTarget as HTMLButtonElement).style.background = '#fafafa';
-                      (e.currentTarget as HTMLButtonElement).style.borderColor = '#0055ff';
+                      (e.currentTarget as HTMLButtonElement).style.background = 'var(--surface-subtle)';
+                      (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--accent)';
                     }
                   }}
                   onMouseLeave={e => {
                     if (!answered) {
-                      (e.currentTarget as HTMLButtonElement).style.background = '#fff';
-                      (e.currentTarget as HTMLButtonElement).style.borderColor = '#111111';
+                      (e.currentTarget as HTMLButtonElement).style.background = 'var(--surface)';
+                      (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--border)';
                     }
                   }}
                   onMouseDown={e => {
                     if (!answered) {
                       (e.currentTarget as HTMLButtonElement).style.transform = 'translate(2px,2px)';
-                      (e.currentTarget as HTMLButtonElement).style.boxShadow = '2px 2px 0 rgba(0,0,0,1)';
+                      (e.currentTarget as HTMLButtonElement).style.boxShadow = '2px 2px 0 rgba(0,0,0,0.5)';
                     }
                   }}
                   onMouseUp={e => {
                     if (!answered) {
                       (e.currentTarget as HTMLButtonElement).style.transform = '';
-                      (e.currentTarget as HTMLButtonElement).style.boxShadow = '4px 4px 0 rgba(0,0,0,1)';
+                      (e.currentTarget as HTMLButtonElement).style.boxShadow = '4px 4px 0 rgba(0,0,0,0.5)';
                     }
                   }}
                 >
@@ -308,8 +314,8 @@ export default function DrivingModule() {
               style={{
                 fontFamily: 'var(--font-mono)', fontSize: 13, fontWeight: 700,
                 padding: '12px 24px', textTransform: 'uppercase' as const,
-                border: '2px solid #111', cursor: 'pointer', background: '#fff',
-                boxShadow: '4px 4px 0 rgba(0,0,0,1)',
+                border: '1px solid var(--border)', cursor: 'pointer', background: 'var(--surface)',
+                boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
               }}
             >
               ABORT
@@ -328,9 +334,9 @@ export default function DrivingModule() {
               style={{
                 fontFamily: 'var(--font-mono)', fontSize: 13, fontWeight: 700,
                 padding: '12px 24px', textTransform: 'uppercase' as const,
-                border: '2px solid #111', cursor: answered ? 'pointer' : 'default',
-                background: '#0055ff', color: 'white',
-                boxShadow: '4px 4px 0 rgba(0,0,0,1)',
+                border: '1px solid var(--border)', cursor: answered ? 'pointer' : 'default',
+                background: 'var(--accent)', color: 'var(--fg)',
+                boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
                 opacity: answered ? 1 : 0.4,
               }}
             >
