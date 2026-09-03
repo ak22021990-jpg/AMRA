@@ -1,6 +1,7 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAssessmentStore } from '../store/assessmentStore';
+import { AchievementToast } from './AchievementToast';
 
 const ZONE_PATHS = ['/driving', '/listening', '/cognitive', '/pattern', '/grammar'];
 
@@ -29,8 +30,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <div className="progress-rail-fill" style={{ width: `${(completedCount / 5) * 100}%` }} />
       </div>
       <main style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-        {children}
+        <div key={location.pathname} className="page-transition">
+          {children}
+        </div>
       </main>
+      <AchievementToast />
     </div>
   );
 }

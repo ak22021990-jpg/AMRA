@@ -264,6 +264,38 @@ input:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px
   }
 }
 
+/* ── Responsive ─────────────────────── */
+@media (max-width: 768px) {
+  .dashboard-layout {
+    flex-direction: column !important;
+  }
+  .dashboard-sidebar {
+    width: 100% !important;
+    max-height: 40vh;
+    overflow-y: auto;
+  }
+  .dashboard-sidebar .sidebar-header h1 {
+    font-size: 32px !important;
+  }
+  .progress-rail {
+    height: 3px;
+  }
+  .btn {
+    padding: 14px 20px;
+    font-size: 13px;
+  }
+  .kicker {
+    font-size: 10px;
+  }
+  .module-content {
+    grid-template-columns: 1fr !important;
+  }
+  .ledger-header {
+    grid-template-columns: 60px 1fr 100px !important;
+    gap: 12px !important;
+  }
+}
+
 /* Print */
 @media print {
   :root {
