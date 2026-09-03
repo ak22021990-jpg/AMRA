@@ -7,6 +7,7 @@ import ListeningModule from './modules/listening/ListeningModule';
 import CognitiveModule from './modules/cognitive/CognitiveModule';
 import PatternModule from './modules/pattern/PatternModule';
 import GrammarModule from './modules/grammar/GrammarModule';
+import TestPage from './pages/TestPage';
 import { useReducedMotion } from './hooks/useReducedMotion';
 import { useConfetti } from './hooks/useConfetti';
 
@@ -17,6 +18,9 @@ function NotFound() {
       <h2 style={{ marginTop: 16 }}>Page not found</h2>
       <p style={{ color: 'var(--muted)', marginBottom: 24 }}>The assessment module you are looking for does not exist.</p>
       <Link to="/" style={{ color: 'var(--accent)', fontWeight: 700, textDecoration: 'none' }}>Back to Dashboard</Link>
+      <div style={{ marginTop: 12 }}>
+        <Link to="/test" style={{ color: 'var(--muted)', fontSize: 12, textDecoration: 'none' }}>UI Component Test</Link>
+      </div>
     </div>
   );
 }
@@ -37,6 +41,7 @@ export default function App() {
             <Route path="/pattern" element={<PatternModule />} />
             <Route path="/grammar" element={<GrammarModule />} />
             <Route path="/results" element={<ResultsReport />} />
+            <Route path="/test" element={<TestPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Layout>
