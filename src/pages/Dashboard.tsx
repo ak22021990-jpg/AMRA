@@ -1,14 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAssessmentStore } from '../store/assessmentStore';
 import { AnimatedQuestPath } from '../components/dashboard/AnimatedQuestPath';
 import { useConfetti } from '../hooks/useConfetti';
+import { DrivingHeroScene } from '../components/three/DrivingHeroScene';
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const { candidateName, setCandidate, results, xp, currentStreak, allModulesComplete } = useAssessmentStore();
   const [sfxEnabled, setSfxEnabled] = useState(true);
+  const { toggleAudio, audioEnabled } = useAssessmentStore();
   const fireConfetti = useConfetti();
+  const [selectedChoice, setSelectedChoice] = useState<number | null>(null);
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [activeSoundscape, setActiveSoundscape] = useState<string>('silence');
 
   useEffect(() => {
     // Welcome confetti on first visit
@@ -94,17 +99,17 @@ export default function Dashboard() {
 {/* 3 Day Streak Chip */}
 <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 border border-amber-200/90 text-amber-900 shadow-sm" title="Active Daily Streak">
 <span className="material-symbols-outlined text-amber-500 text-base" data-icon="local_fire_department" style={{ fontVariationSettings: "'FILL' 1" }}>local_fire_department</span>
-<span className="text-xs font-headline-sm font-bold">3-Day Streak</span>
+<span className="text-xs font-headline-sm font-bold">{currentStreak}-Day Streak</span>
 </div>
 {/* XP Pill */}
 <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-50 border border-sky-200 text-sky-800 shadow-sm">
 <span className="material-symbols-outlined text-sky-600 text-base" data-icon="bolt" style={{ fontVariationSettings: "'FILL' 1" }}>bolt</span>
-<span className="text-xs font-label-telemetry font-bold">1,240 XP</span>
+<span className="text-xs font-label-telemetry font-bold">{xp.toLocaleString()} XP</span>
 </div>
 {/* Audio Mute/Unmute Pill */}
-<button className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-100 hover:bg-slate-200/80 transition-all text-slate-700 text-xs font-headline-sm font-semibold border border-slate-200 active:scale-95" id="sfx-toggle" onClick={() => {}} title="Cabin Audio System">
-<span className="material-symbols-outlined text-base text-primary" data-icon="volume_up" id="sfx-icon">volume_up</span>
-<span className="hidden sm:inline" id="sfx-status">Cabin FX</span>
+<button className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-100 hover:bg-slate-200/80 transition-all text-slate-700 text-xs font-headline-sm font-semibold border border-slate-200 active:scale-95" id="sfx-toggle" onClick={() => toggleAudio()} title="Cabin Audio System">
+<span className="material-symbols-outlined text-base text-primary" data-icon={audioEnabled ? "volume_up" : "volume_off"} id="sfx-icon">{audioEnabled ? "volume_up" : "volume_off"}</span>
+<span className="hidden sm:inline" id="sfx-status">{audioEnabled ? "Cabin FX" : "Muted"}</span>
 </button>
 {/* Candidate Avatar with Level Pill */}
 <div className="flex items-center gap-2 pl-1">
@@ -177,6 +182,10 @@ export default function Dashboard() {
 <main className="w-full lg:pl-64 p-4 md:p-6 lg:p-8 space-y-6">
 {/* HERO BANNER: Waymo Autonomous Intelligence Welcome */}
 <div className="relative overflow-hidden rounded-3xl bg-midnight-slate text-white p-6 md:p-8 waymo-card border-slate-800 relative">
+{/* Three.js LiDAR Scene */}
+<Suspense fallback={null}>
+  <DrivingHeroScene />
+</Suspense>
 {/* Subtly animated LiDAR gradient orbs */}
 <div className="absolute -right-16 -top-16 w-80 h-80 bg-sensor-cyan/15 rounded-full blur-3xl pointer-events-none"></div>
 <div className="absolute right-28 -bottom-16 w-60 h-60 bg-lidar-beam/20 rounded-full blur-2xl pointer-events-none"></div>
@@ -275,30 +284,30 @@ export default function Dashboard() {
 </div>
 {/* Sleek Waymo Vehicle UI Choice Cards */}
 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5" id="choice-container">
-<button className="choice-btn p-3 rounded-2xl bg-white border border-slate-200 hover:border-sensor-cyan text-left transition-all active:scale-95 duration-150 flex items-center gap-2.5 shadow-sm" onClick={() => {}}>
+<button className={`choice-btn p-3 rounded-2xl bg-white border text-left transition-all active:scale-95 duration-150 flex items-center gap-2.5 shadow-sm ${selectedChoice === 0 ? 'border-telemetry-emerald bg-emerald-50' : 'border-slate-200 hover:border-sensor-cyan'}`} onClick={() => { setSelectedChoice(0); setShowFeedback(true); }}>
 <span className="w-6 h-6 rounded-lg bg-slate-100 flex items-center justify-center text-xs font-label-telemetry font-bold text-slate-700">A</span>
 <span className="text-xs font-medium text-slate-800">Rapidly clear the intersection</span>
 </button>
-<button className="choice-btn p-3 rounded-2xl bg-white border border-slate-200 hover:border-sensor-cyan text-left transition-all active:scale-95 duration-150 flex items-center gap-2.5 shadow-sm" onClick={() => {}}>
+<button className={`choice-btn p-3 rounded-2xl bg-white border text-left transition-all active:scale-95 duration-150 flex items-center gap-2.5 shadow-sm ${selectedChoice === 1 ? 'border-telemetry-emerald bg-emerald-50' : 'border-slate-200 hover:border-sensor-cyan'}`} onClick={() => { setSelectedChoice(1); setShowFeedback(true); }}>
 <span className="w-6 h-6 rounded-lg bg-slate-100 flex items-center justify-center text-xs font-label-telemetry font-bold text-slate-700">B</span>
 <span className="text-xs font-medium text-slate-800">Hold wait position &amp; confirm path</span>
 </button>
-<button className="choice-btn p-3 rounded-2xl bg-white border border-slate-200 hover:border-sensor-cyan text-left transition-all active:scale-95 duration-150 flex items-center gap-2.5 shadow-sm" onClick={() => {}}>
+<button className={`choice-btn p-3 rounded-2xl bg-white border text-left transition-all active:scale-95 duration-150 flex items-center gap-2.5 shadow-sm ${selectedChoice === 2 ? 'border-telemetry-emerald bg-emerald-50' : 'border-slate-200 hover:border-sensor-cyan'}`} onClick={() => { setSelectedChoice(2); setShowFeedback(true); }}>
 <span className="w-6 h-6 rounded-lg bg-slate-100 flex items-center justify-center text-xs font-label-telemetry font-bold text-slate-700">C</span>
 <span className="text-xs font-medium text-slate-800">Creep forward into oncoming lane</span>
 </button>
-<button className="choice-btn p-3 rounded-2xl bg-white border border-slate-200 hover:border-sensor-cyan text-left transition-all active:scale-95 duration-150 flex items-center gap-2.5 shadow-sm" onClick={() => {}}>
+<button className={`choice-btn p-3 rounded-2xl bg-white border text-left transition-all active:scale-95 duration-150 flex items-center gap-2.5 shadow-sm ${selectedChoice === 3 ? 'border-telemetry-emerald bg-emerald-50' : 'border-slate-200 hover:border-sensor-cyan'}`} onClick={() => { setSelectedChoice(3); setShowFeedback(true); }}>
 <span className="w-6 h-6 rounded-lg bg-slate-100 flex items-center justify-center text-xs font-label-telemetry font-bold text-slate-700">D</span>
 <span className="text-xs font-medium text-slate-800">Engage emergency audio horn</span>
 </button>
 </div>
 {/* Dynamic Feedback Output Card */}
-<div className="hidden p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 transition-all" id="feedback-card">
+<div className={`p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 transition-all ${showFeedback ? '' : 'hidden'}`} id="feedback-card">
 <div className="flex items-center gap-2">
 <span className="material-symbols-outlined text-telemetry-emerald text-lg" data-icon="check_circle" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
-<span className="text-xs font-headline-sm font-bold" id="feedback-text">Optimal Trajectory Decision! +50 XP</span>
+<span className="text-xs font-headline-sm font-bold" id="feedback-text">{selectedChoice === 1 ? 'Optimal Trajectory Decision! +50 XP' : 'Consider reviewing autonomous protocols.'}</span>
 </div>
-<p className="text-[11px] mt-1 text-slate-600">Holding position respects vulnerable road users (VRUs) and guarantees zero-conflict headway.</p>
+<p className="text-[11px] mt-1 text-slate-600">{selectedChoice === 1 ? 'Holding position respects vulnerable road users (VRUs) and guarantees zero-conflict headway.' : 'The recommended AV protocol is to hold position and confirm the path before proceeding.'}</p>
 </div>
 </div>
 {/* WIDGET 2: Driver Readiness & Cognitive Grounding */}
@@ -333,16 +342,16 @@ export default function Dashboard() {
 <div>
 <label className="text-[11px] font-label-telemetry text-slate-500 block mb-2 font-bold uppercase tracking-wider">Cabin Ambient Soundscape</label>
 <div className="grid grid-cols-3 gap-2">
-<button className="audio-btn p-2 rounded-xl bg-slate-50 border border-sensor-cyan text-[11px] font-headline-sm font-bold text-midnight-slate flex flex-col items-center gap-1 shadow-sm transition-all" onClick={() => {}}>
-<span className="material-symbols-outlined text-sm text-sensor-cyan" data-icon="electric_bolt">electric_bolt</span>
+<button className={`audio-btn p-2 rounded-xl bg-slate-50 border text-[11px] font-headline-sm flex flex-col items-center gap-1 shadow-sm transition-all ${activeSoundscape === 'silence' ? 'border-sensor-cyan text-midnight-slate font-bold' : 'border-slate-200 text-slate-600 font-medium hover:bg-slate-100'}`} onClick={() => setActiveSoundscape('silence')}>
+<span className={`material-symbols-outlined text-sm ${activeSoundscape === 'silence' ? 'text-sensor-cyan' : 'text-slate-500'}`} data-icon="electric_bolt">electric_bolt</span>
                   Cabin Silence
                 </button>
-<button className="audio-btn p-2 rounded-xl bg-slate-50 border border-slate-200 text-[11px] font-headline-sm font-medium text-slate-600 hover:bg-slate-100 flex flex-col items-center gap-1 transition-all" onClick={() => {}}>
-<span className="material-symbols-outlined text-sm text-slate-500" data-icon="water_drop">water_drop</span>
+<button className={`audio-btn p-2 rounded-xl bg-slate-50 border text-[11px] font-headline-sm flex flex-col items-center gap-1 transition-all ${activeSoundscape === 'rain' ? 'border-sensor-cyan text-midnight-slate font-bold shadow-sm' : 'border-slate-200 text-slate-600 font-medium hover:bg-slate-100'}`} onClick={() => setActiveSoundscape('rain')}>
+<span className={`material-symbols-outlined text-sm ${activeSoundscape === 'rain' ? 'text-sensor-cyan' : 'text-slate-500'}`} data-icon="water_drop">water_drop</span>
                   Rain on Shield
                 </button>
-<button className="audio-btn p-2 rounded-xl bg-slate-50 border border-slate-200 text-[11px] font-headline-sm font-medium text-slate-600 hover:bg-slate-100 flex flex-col items-center gap-1 transition-all" onClick={() => {}}>
-<span className="material-symbols-outlined text-sm text-slate-500" data-icon="graphic_eq">graphic_eq</span>
+<button className={`audio-btn p-2 rounded-xl bg-slate-50 border text-[11px] font-headline-sm flex flex-col items-center gap-1 transition-all ${activeSoundscape === 'glide' ? 'border-sensor-cyan text-midnight-slate font-bold shadow-sm' : 'border-slate-200 text-slate-600 font-medium hover:bg-slate-100'}`} onClick={() => setActiveSoundscape('glide')}>
+<span className={`material-symbols-outlined text-sm ${activeSoundscape === 'glide' ? 'text-sensor-cyan' : 'text-slate-500'}`} data-icon="graphic_eq">graphic_eq</span>
                   Electric Glide
                 </button>
 </div>
