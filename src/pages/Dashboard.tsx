@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAssessmentStore } from '../store/assessmentStore';
 import { AnimatedQuestPath } from '../components/dashboard/AnimatedQuestPath';
 import { useConfetti } from '../hooks/useConfetti';
+import { PillButton } from '../components/ui/PillButton';
 
 const DrivingHeroScene = lazy(() => import('../components/three/DrivingHeroScene').then(m => ({ default: m.DrivingHeroScene })));
 
@@ -206,14 +207,16 @@ export default function Dashboard() {
               No trick traps or ticking clocks. AMRA assesses your natural situational calmness, obstacle anticipation, and smooth passenger-first autonomous navigation protocols.
             </p>
 <div className="pt-2 flex flex-wrap items-center gap-3 justify-center md:justify-start">
-<button className="waymo-pill-btn text-midnight-slate font-headline-sm font-bold text-sm px-6 py-3.5 rounded-full flex items-center gap-2 cursor-pointer transition-all">
-<span>Resume Mission: Urban Trajectory</span>
-<span className="material-symbols-outlined text-lg" data-icon="navigation">navigation</span>
-</button>
-<button className="px-4 py-3 rounded-full bg-white/10 hover:bg-white/15 border border-white/20 text-white font-headline-sm text-xs font-semibold flex items-center gap-2 transition-all">
+<PillButton variant="primary" onClick={() => navigate('/driving')} className="!text-midnight-slate">
+<span className="flex items-center gap-2"><span>Resume Mission: Urban Trajectory</span>
+<span className="material-symbols-outlined text-lg" data-icon="navigation">navigation</span></span>
+</PillButton>
+<PillButton variant="secondary" className="!bg-white/10 !border-white/20 !text-white hover:!bg-white/15">
+<span className="flex items-center gap-2">
 <span className="material-symbols-outlined text-sensor-cyan text-base" data-icon="menu_book">menu_book</span>
                 Evaluation Guide
-              </button>
+              </span>
+</PillButton>
 </div>
 </div>
 {/* AV Sensor Visualizer / Mascot Card */}
