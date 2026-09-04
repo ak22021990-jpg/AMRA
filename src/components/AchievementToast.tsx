@@ -3,11 +3,13 @@ import { useEffect, useState, useCallback } from 'react';
 import { useAchievements } from '../hooks/useAchievements';
 import type { Achievement } from '../hooks/useAchievements';
 import { useSound } from '../hooks/useSound';
+import { useConfetti } from '../hooks/useConfetti';
 import { useAssessmentStore } from '../store/assessmentStore';
 
 export function AchievementToast() {
   const { checkAchievements, newAchievement } = useAchievements();
   const { play } = useSound();
+  const fireConfetti = useConfetti();
   const [visible, setVisible] = useState(false);
   const [current, setCurrent] = useState<Achievement | null>(null);
 
@@ -23,12 +25,15 @@ export function AchievementToast() {
         setCurrent(newAchievement.current);
         setVisible(true);
         play('achievement');
+        if (['streak-3', 'streak-5'].includes(newAchievement.current.id)) {
+          fireConfetti();
+        }
         newAchievement.current = null;
         setTimeout(dismiss, 4000);
       }
     });
     return unsub;
-  }, [checkAchievements, play, dismiss, newAchievement]);
+  }, [checkAchievements, play, fireConfetti, dismiss, newAchievement]);
 
   if (!current) return null;
 

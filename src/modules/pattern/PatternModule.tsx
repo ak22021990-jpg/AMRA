@@ -186,6 +186,7 @@ export default function PatternModule() {
           skillTags,
           completed: true,
         });
+        play('module-complete');
         setPhase('done');
       }
     }
@@ -199,14 +200,11 @@ export default function PatternModule() {
     const score = results.filter(Boolean).length;
     return (
       <div className="anim-scale-in" style={{
-        maxWidth: 700,
-        height: 'calc(100vh - 3px)',
-        margin: '3px auto 0',
+        width: '100%',
+        height: '100vh',
         display: 'flex',
         flexDirection: 'column',
         background: 'var(--surface)',
-        border: '1px solid var(--border)',
-        boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
       }}>
         {/* Header */}
         <div style={{
@@ -232,8 +230,9 @@ export default function PatternModule() {
             gap: 40,
             marginBottom: 32,
             padding: '24px 40px',
-            border: '1px solid var(--border)',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+            border: '1px solid rgba(255,255,255,0.1)',
+            borderRadius: 16,
+            boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
           }}>
             <div>
               <div style={{ fontFamily: 'monospace', fontSize: 12, fontWeight: 700, textTransform: 'uppercase' as const, marginBottom: 4 }}>Score</div>
@@ -251,9 +250,9 @@ export default function PatternModule() {
                 width: 32, height: 32,
                 background: r ? 'var(--pass)' : 'var(--fail)',
                 border: '1px solid var(--border)',
+                borderRadius: 8,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 color: 'var(--surface)', fontWeight: 700, fontSize: 14,
-                boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
               }}>{r ? '✓' : '✗'}</span>
             ))}
           </div>
@@ -269,7 +268,7 @@ export default function PatternModule() {
               color: 'var(--surface)',
               border: '1px solid var(--border)',
               padding: '12px 32px',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+              borderRadius: 8,
               cursor: 'pointer',
             }}
           >
@@ -280,55 +279,40 @@ export default function PatternModule() {
     );
   }
 
-  // Cell styling per proto
+  // Cell styling — 2048 tile aesthetic
   const getCellStyle = (cellIdx: number): React.CSSProperties => {
     const isFlashing = activeCell === cellIdx;
     const fb = feedback[cellIdx];
     const isSelected = selected.includes(cellIdx);
 
-    let bg = 'var(--surface)';
-    let borderColor = 'var(--border)';
-    let boxShadow = '4px 4px 0 rgba(0,0,0,0.5)';
-    let transform = 'none';
+    let bg = 'rgba(255,255,255,0.06)';
+    let boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
 
     if (isFlashing) {
-      // .cell.active
-      bg = 'var(--border)';
-      borderColor = 'var(--border)';
-      boxShadow = '0 0 0';
-      transform = 'translate(4px,4px)';
+      // flashing: gold glow
+      bg = '#edc850';
+      boxShadow = '0 0 20px rgba(237,200,80,0.6)';
     } else if (fb === 'correct') {
-      // .cell.correct-recall
-      bg = 'var(--pass)';
-      borderColor = 'var(--pass)';
-      boxShadow = '0 0 0';
-      transform = 'translate(4px,4px)';
+      bg = '#6fbf6f';
+      boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
     } else if (fb === 'wrong') {
-      // .cell.wrong-recall
-      bg = 'var(--fail)';
-      borderColor = 'var(--fail)';
-      boxShadow = '0 0 0';
-      transform = 'translate(4px,4px)';
+      bg = '#e07070';
+      boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
     } else if (fb === 'missed') {
-      bg = 'var(--muted)';
-      borderColor = 'var(--muted)';
-      boxShadow = '0 0 0';
-      transform = 'translate(4px,4px)';
+      bg = 'rgba(255,255,255,0.12)';
+      boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
     } else if (phase === 'recall' && isSelected) {
-      bg = 'var(--accent)';
-      borderColor = 'var(--accent)';
-      boxShadow = '0 0 0';
-      transform = 'translate(4px,4px)';
+      bg = '#8fbcd4';
+      boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
     }
 
     return {
       aspectRatio: '1',
-      border: `2px solid ${borderColor}`,
+      borderRadius: 6,
       background: bg,
       cursor: phase === 'recall' ? 'pointer' : 'default',
       boxShadow,
-      transition: 'all 0.1s',
-      transform,
+      transition: 'all 0.12s ease',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -345,14 +329,11 @@ export default function PatternModule() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
       style={{
-        maxWidth: 700,
-        height: 'calc(100vh - 3px)',
-        margin: '3px auto 0',
+        width: '100%',
+        height: '100vh',
         display: 'flex',
         flexDirection: 'column',
         background: 'var(--surface)',
-        border: '1px solid var(--border)',
-        boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
     }}>
       {/* Header */}
       <div style={{
@@ -430,7 +411,7 @@ export default function PatternModule() {
                 color: 'var(--surface)',
                 border: '1px solid var(--border)',
                 padding: '12px 32px',
-                boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+                borderRadius: 8,
                 cursor: 'pointer',
               }}
             >
@@ -491,9 +472,12 @@ export default function PatternModule() {
           style={{
             display: 'grid',
             gridTemplateColumns: `repeat(${GRID_SIZE}, 1fr)`,
-            gap: 12,
-            maxWidth: 400,
+            gap: 14,
+            maxWidth: 560,
             width: '100%',
+            padding: 20,
+            background: 'rgba(0,0,0,0.25)',
+            borderRadius: 12,
           }}
         >
           {Array.from({ length: TOTAL_CELLS }, (_, i) => (
@@ -506,11 +490,14 @@ export default function PatternModule() {
               onClick={() => handleCellClick(i)}
               onKeyDown={(e) => handleCellKeyDown(i, e)}
               style={getCellStyle(i)}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              initial={{ scale: 0.85, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: i * 0.015, duration: 0.2, type: 'spring', stiffness: 300 }}
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.92 }}
             >
               {activeCell === i && flashIdx >= 0 && (
-                <span style={{ color: 'var(--surface)', fontWeight: 800, fontSize: 18, fontFamily: 'monospace' }}>
+                <span style={{ color: 'rgba(0,0,0,0.7)', fontWeight: 800, fontSize: 20, fontFamily: 'monospace' }}>
                   {flashIdx + 1}
                 </span>
               )}
@@ -552,7 +539,7 @@ export default function PatternModule() {
               color: 'var(--surface)',
               border: '1px solid var(--border)',
               padding: '12px 32px',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+              borderRadius: 8,
               cursor: 'pointer',
             }}
           >

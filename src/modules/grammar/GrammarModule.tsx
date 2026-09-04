@@ -197,7 +197,7 @@ const questions: GrammarQuestion[] = [
     ],
     correctIndex: 1, explanation: "'; however,' between independent clauses.",
   },
-];
+].slice(0, 5);
 
 export default function GrammarModule() {
   const navigate = useNavigate();
@@ -237,6 +237,7 @@ export default function GrammarModule() {
           skillTags: [...new Set(questions.map(x => x.skillTag))],
           completed: true,
         });
+        play('module-complete');
         navigate('/');
       }
     }, 1100);

@@ -59,7 +59,7 @@ const questions = [
     correctIndex: 1,
     explanation: 'In New York, a pedestrian with a white cane or guide dog is blind or visually impaired. Drivers must exercise heightened caution and always yield the right-of-way.',
   },
-];
+].slice(0, 5);
 
 export default function DrivingModule() {
   const navigate = useNavigate();
@@ -128,6 +128,7 @@ export default function DrivingModule() {
             criticalErrors,
             completed: true,
           });
+          play('module-complete');
         } catch (e) {
           console.error(e);
         } finally {
@@ -228,7 +229,7 @@ export default function DrivingModule() {
         maxWidth: 1440, margin: '0 auto', width: '100%', alignItems: 'start'
       }}>
         
-        {/* Left: 65% Simulated 16:9 Waymo AV Perception HUD */}
+        {/* Left: 65% Simulated 16:9 AV Perception HUD */}
         <section style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div className="bento-card" style={{ 
             padding: 0, overflow: 'hidden', width: '100%', aspectRatio: '16/9', 

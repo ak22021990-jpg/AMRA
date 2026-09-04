@@ -3,6 +3,7 @@ import { useAssessmentStore } from '../store/assessmentStore';
 import { ShieldCheck, Ear, Brain, Target, Keyboard, AlertTriangle, Zap, CheckCircle2 } from 'lucide-react';
 import { useAchievements } from '../hooks/useAchievements';
 import { useConfetti } from '../hooks/useConfetti';
+import { useSound } from '../hooks/useSound';
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { pageTransition, staggerContainer, staggerItem } from '../lib/animations';
@@ -53,6 +54,7 @@ export default function ResultsReport() {
   const unlockedAchievements = useAssessmentStore(s => s.unlockedAchievements);
   const unlocked = achievements.filter(a => unlockedAchievements.includes(a.id));
   const fireConfetti = useConfetti();
+  const { play } = useSound();
 
   if (!candidateName || !allModulesComplete()) {
     return <Navigate to="/" replace />;
@@ -69,10 +71,12 @@ export default function ResultsReport() {
   const composite = Math.round(compositeRaw);
 
   useEffect(() => {
+    play('finale');
     if (composite >= 80) {
       fireConfetti();
     }
-  }, [composite, fireConfetti]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const allPass = MODULE_ORDER.every((id, i) => Math.round(modulePcts[i]) >= MODULE_META[id].threshold);
   const testId = `TRK-${candidateName.slice(0, 3).toUpperCase()}-001`;
