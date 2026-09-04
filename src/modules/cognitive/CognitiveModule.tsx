@@ -364,11 +364,11 @@ export default function CognitiveModule() {
       </div>
 
       {/* Body */}
-      <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '65% 35%', minHeight: 0 }}>
+      <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '70% 30%', minHeight: 0 }}>
 
         {/* Left: Question panel */}
         <section style={{
-          padding: 40, borderRight: '1px solid var(--border)',
+          padding: 48, borderRight: '1px solid var(--border)',
           display: 'flex', flexDirection: 'column', justifyContent: 'center',
           overflow: 'auto',
         }}>
@@ -381,8 +381,8 @@ export default function CognitiveModule() {
               transition={{ duration: 0.25 }}
               style={{ display: 'flex', flexDirection: 'column', gap: 24 }}
             >
-              {/* Level badge */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              {/* Level badge + skill tag — inline, smaller */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
                 <span style={{
                   fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 700,
                   padding: '4px 10px', borderRadius: 4,
@@ -392,32 +392,21 @@ export default function CognitiveModule() {
                 }}>
                   {levelEmoji} {q.levelLabel.toUpperCase()}
                 </span>
+                <span style={{
+                  fontFamily: 'var(--font-mono)', fontSize: 11,
+                  color: 'var(--muted)', letterSpacing: 1,
+                }}>
+                  SKILL: {q.skillTag.replace(/_/g, ' ').toUpperCase()}
+                </span>
               </div>
 
-              {/* Question number */}
-              <div style={{
-                fontFamily: 'var(--font-mono)', fontSize: 48, fontWeight: 900,
-                color: 'var(--accent)', lineHeight: 1,
-              }}>
-                Q.{String(current + 1).padStart(2, '0')}
-              </div>
-
-              {/* Question text */}
+              {/* Question text — larger, wider */}
               <p style={{
-                fontSize: 20, lineHeight: 1.7, color: 'var(--fg)',
-                whiteSpace: 'pre-line', margin: 0, maxWidth: 640,
+                fontSize: 26, lineHeight: 1.7, color: 'var(--fg)',
+                whiteSpace: 'pre-line', margin: 0, maxWidth: 950,
               }}>
                 {q.question}
               </p>
-
-              {/* Skill tag */}
-              <div style={{
-                fontFamily: 'var(--font-mono)', fontSize: 11,
-                color: 'var(--muted)', letterSpacing: 1,
-                marginTop: 8,
-              }}>
-                SKILL: {q.skillTag.replace(/_/g, ' ').toUpperCase()}
-              </div>
             </motion.div>
           </AnimatePresence>
         </section>
@@ -458,8 +447,8 @@ export default function CognitiveModule() {
                   key={i}
                   onClick={() => !answered && setSelectedIndex(i)}
                   style={{
-                    display: 'flex', alignItems: 'center', gap: 14,
-                    padding: '14px 16px', borderRadius: 6,
+                    display: 'flex', alignItems: 'center', gap: 12,
+                    padding: '12px 14px', borderRadius: 6,
                     background: bg, border: `1px solid ${border}`,
                     cursor: answered ? 'default' : 'pointer',
                     color: textColor, fontFamily: 'inherit',
@@ -467,15 +456,15 @@ export default function CognitiveModule() {
                   }}
                 >
                   <span style={{
-                    fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: 13,
-                    minWidth: 28, height: 28, borderRadius: 4,
+                    fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: 12,
+                    minWidth: 26, height: 26, borderRadius: 4,
                     background: letterBg, color: 'var(--bg)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     flexShrink: 0,
                   }}>
                     {LETTERS[i]}
                   </span>
-                  <span style={{ fontSize: 14, lineHeight: 1.5 }}>{opt}</span>
+                  <span style={{ fontSize: 13, lineHeight: 1.5 }}>{opt}</span>
                 </button>
               );
             })}

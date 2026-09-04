@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { useAssessmentStore } from '../../store/assessmentStore';
 import { useSound } from '../../hooks/useSound';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 // Exact rollback to Grammar Assesment.docx — 25 Qs across 5 sections
 interface GrammarQuestion {
@@ -245,23 +245,55 @@ export default function GrammarModule() {
 
   if (!started) {
     return (
-      <div style={{ maxWidth: 800, height: 'calc(100vh - 3px)', margin: '3px auto 0', display: 'flex', flexDirection: 'column', background: 'var(--surface)', border: '1px solid var(--border)', boxShadow: '0 8px 32px rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', gap: 24, padding: 40 }}>
-        <div style={{ fontFamily: 'monospace', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--muted)', border: '1px solid var(--border)', padding: '6px 12px' }}>Section Grammar • 25 Questions</div>
-        <h2 style={{ fontSize: 28, fontWeight: 800, letterSpacing: '-0.03em', textAlign: 'center' }}>Grammar & Written Communication</h2>
-        <p style={{ fontSize: 14, color: 'var(--muted)', maxWidth: 520, textAlign: 'center', lineHeight: 1.6 }}>
-          5 sections: SVO (5) • SVA (5) • Tenses (5) • Connecting Words (5) • Punctuation (5).<br />Exact rollback to Grammar Assessment.docx. ~8 min.
-        </p>
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
-          {['A: SVO', 'B: Agreement', 'C: Tenses', 'D: Connectors', 'E: Punctuation'].map(t => (
-            <span key={t} style={{ fontFamily: 'monospace', fontSize: 11, padding: '6px 10px', border: '1px solid var(--border)', background: 'var(--bg)' }}>{t}</span>
-          ))}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        style={{
+          width: '100%', maxWidth: 1600, minHeight: '100vh',
+          margin: '0 auto', display: 'flex', flexDirection: 'column',
+          background: 'var(--bg)', fontFamily: 'var(--font-body)'
+        }}
+      >
+        {/* Header */}
+        <div style={{
+          padding: '24px 48px', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          background: 'var(--surface)', borderBottom: '1px solid var(--border)',
+          position: 'sticky', top: 0, zIndex: 100
+        }}>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 700, color: 'var(--accent)', letterSpacing: '0.1em' }}>
+            GRAMMAR MODULE
+          </span>
+          <button onClick={() => navigate('/')} style={{ fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 700, padding: '8px 16px', border: '1px solid var(--border)', background: 'var(--surface)', cursor: 'pointer', borderRadius: 4 }}>
+            ABORT
+          </button>
         </div>
-        <button onClick={() => setStarted(true)} style={{ background: 'var(--accent)', color: 'var(--surface)', border: '1px solid var(--border)', fontFamily: 'monospace', fontWeight: 700, fontSize: 13, textTransform: 'uppercase', padding: '14px 36px', boxShadow: '4px 4px 0 rgba(0,0,0,0.5)', cursor: 'pointer' }}>Start Grammar Test →</button>
-      </div>
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 48 }}>
+          <div style={{ textAlign: 'center', maxWidth: 800 }}>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--accent)', marginBottom: 16, fontWeight: 700 }}>
+              Section Grammar • 25 Questions
+            </div>
+            <h2 style={{ fontSize: 40, fontWeight: 800, letterSpacing: '-0.03em', lineHeight: 1.1, marginBottom: 16, color: 'var(--fg)' }}>
+              Grammar & Written Communication
+            </h2>
+            <p style={{ fontSize: 16, color: 'var(--muted)', maxWidth: 600, margin: '0 auto 32px', lineHeight: 1.6 }}>
+              5 sections: SVO (5) • SVA (5) • Tenses (5) • Connecting Words (5) • Punctuation (5).<br />Exact rollback to Grammar Assessment.docx. ~8 min.
+            </p>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center', marginBottom: 32 }}>
+              {['A: SVO', 'B: Agreement', 'C: Tenses', 'D: Connectors', 'E: Punctuation'].map(t => (
+                <span key={t} style={{ fontFamily: 'var(--font-mono)', fontSize: 11, padding: '6px 12px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--muted)', borderRadius: 4 }}>{t}</span>
+              ))}
+            </div>
+            <button onClick={() => setStarted(true)} style={{ background: 'var(--accent)', color: 'var(--surface)', border: '1px solid var(--border)', fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: 14, textTransform: 'uppercase', padding: '16px 40px', boxShadow: '4px 4px 0 rgba(0,0,0,0.3)', cursor: 'pointer', borderRadius: 4 }}>
+              Begin Assessment →
+            </button>
+          </div>
+        </div>
+      </motion.div>
     );
   }
 
-  const sectionProgress = `${q.section} • ${q.sectionName}`;
+  const sectionProgress = q.sectionName; // Only section name, no q.id
   const pct = Math.round(((current + 1) / questions.length) * 100);
 
   return (
@@ -269,39 +301,175 @@ export default function GrammarModule() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      style={{ maxWidth: 860, height: 'calc(100vh - 3px)', margin: '3px auto 0', display: 'flex', flexDirection: 'column', background: 'var(--surface)', border: '1px solid var(--border)', boxShadow: '0 8px 32px rgba(0,0,0,0.5)' }}
+      style={{ width: '100%', maxWidth: 1600, minHeight: '100vh', margin: '0 auto', display: 'flex', flexDirection: 'column', background: 'var(--bg)', fontFamily: 'var(--font-body)' }}
     >
-      <div style={{ padding: '20px 28px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg)' }}>
-        <span style={{ fontFamily: 'monospace', fontSize: 12, fontWeight: 700, textTransform: 'uppercase' }}>{sectionProgress}</span>
-        <span style={{ fontFamily: 'monospace', fontSize: 12, color: 'var(--muted)' }}>{current + 1} / {questions.length} • {pct}%</span>
-      </div>
-      <div style={{ height: 4, background: 'var(--border)' }}><div style={{ height: '100%', width: `${pct}%`, background: 'var(--accent)', transition: 'width 0.3s' }} /></div>
-      <div style={{ flex: 1, overflowY: 'auto', padding: 32 }}>
-        <div style={{ fontFamily: 'monospace', fontSize: 11, color: 'var(--muted)', textTransform: 'uppercase', marginBottom: 8 }}>{q.id} — {q.sectionName}</div>
-        <h2 style={{ fontSize: 20, fontWeight: 700, lineHeight: 1.35, marginBottom: 24 }}>{q.question}</h2>
-        <div style={{ display: 'grid', gap: 10 }}>
-          {q.options.map((opt, i) => {
-            let bg = 'var(--surface)', border = 'var(--border)', color = 'var(--fg)';
-            if (answered && selectedIndex !== null) {
-              if (i === q.correctIndex) { bg = 'var(--pass-bg)'; border = 'var(--pass)'; color = 'var(--pass)'; }
-              else if (i === selectedIndex) { bg = 'var(--fail-bg)'; border = 'var(--fail)'; color = 'var(--fail)'; }
-            }
-            return (
-              <motion.button key={i} onClick={() => handleSelect(i)} disabled={answered}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                style={{ display: 'flex', gap: 14, alignItems: 'center', padding: 16, border: `1px solid ${border}`, background: bg, color, cursor: answered ? 'default' : 'pointer', textAlign: 'left', fontSize: 14, fontWeight: 600, boxShadow: '0 8px 32px rgba(0,0,0,0.35)', transition: 'all 0.12s' }}>
-                <span style={{ fontFamily: 'monospace', fontSize: 12, fontWeight: 700, minWidth: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid currentColor', borderRadius: '50%' }}>{String.fromCharCode(65 + i)}</span>
-                <span>{opt}</span>
-              </motion.button>
-            );
-          })}
+      {/* Sticky Header */}
+      <div style={{
+        padding: '20px 48px', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        background: 'var(--surface)', borderBottom: '1px solid var(--border)',
+        position: 'sticky', top: 0, zIndex: 100, flexWrap: 'wrap', gap: 16
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
+          <span style={{
+            fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 700,
+            padding: '4px 12px', borderRadius: 999,
+            background: 'var(--accent-bg)', color: 'var(--accent)',
+            border: '1px solid var(--accent-border)',
+            textTransform: 'uppercase', letterSpacing: '0.05em'
+          }}>
+            {sectionProgress}
+          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 13, fontWeight: 700, color: 'var(--fg)' }}>
+              Question {current + 1} of {questions.length}
+            </span>
+            <span style={{ color: 'var(--muted)' }}>/</span>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 13, fontWeight: 700, color: 'var(--accent)' }}>
+              {pct}%
+            </span>
+          </div>
+          <div style={{ height: 6, width: 200, background: 'var(--border)', borderRadius: 999, overflow: 'hidden', minWidth: 120 }}>
+            <div style={{ height: '100%', width: `${pct}%`, background: 'var(--accent)', transition: 'width 0.3s ease' }} />
+          </div>
         </div>
-        {answered && <div style={{ marginTop: 16, padding: 14, background: 'var(--bg)', border: '1px solid var(--border)', fontSize: 13, color: 'var(--muted)', lineHeight: 1.5 }}>{q.explanation}</div>}
+        <button onClick={() => navigate('/')} style={{ fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 700, padding: '10px 18px', border: '1px solid var(--border)', background: 'var(--surface)', cursor: 'pointer', borderRadius: 4 }}>
+          ABORT
+        </button>
       </div>
-      <div style={{ padding: '16px 28px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', background: 'var(--surface)' }}>
-        <button onClick={() => navigate('/')} style={{ fontFamily: 'monospace', fontSize: 12, fontWeight: 700, padding: '10px 18px', border: '1px solid var(--border)', background: 'var(--surface)', cursor: 'pointer' }}>ABORT</button>
-        <span style={{ fontFamily: 'monospace', fontSize: 11, color: 'var(--muted)', alignSelf: 'center' }}>{answered ? 'Next in 1s…' : 'Select an answer'}</span>
+
+      {/* Question Panel */}
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px', overflowY: 'auto' }}>
+        <div style={{ width: '100%', maxWidth: 1000 }}>
+          {/* Question */}
+          <div style={{ marginBottom: 32 }}>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--muted)', textTransform: 'uppercase', marginBottom: 12, fontWeight: 700, letterSpacing: '0.05em' }}>
+              {q.sectionName}
+            </div>
+            <h2 style={{ fontSize: 24, fontWeight: 600, lineHeight: 1.5, marginBottom: 24, color: 'var(--fg)' }}>
+              {q.question}
+            </h2>
+          </div>
+
+          {/* Options Grid */}
+          <div style={{ display: 'grid', gap: 16 }}>
+            {q.options.map((opt, i) => {
+              let bg = 'var(--surface)', border = 'var(--border)', color = 'var(--fg)', letterBg = 'var(--border)', letterColor = 'var(--fg)';
+              
+              if (answered && selectedIndex !== null) {
+                if (i === q.correctIndex) { bg = 'var(--pass-bg)'; border = 'var(--pass)'; color = 'var(--pass)'; letterBg = 'var(--pass)'; letterColor = 'var(--surface)'; }
+                else if (i === selectedIndex) { bg = 'var(--fail-bg)'; border = 'var(--fail)'; color = 'var(--fail)'; letterBg = 'var(--fail)'; letterColor = 'var(--surface)'; }
+              } else if (!answered && selectedIndex === i) {
+                border = 'var(--accent)'; bg = 'var(--accent-bg)'; color = 'var(--accent)'; letterBg = 'var(--accent)'; letterColor = 'var(--surface)';
+              }
+
+              return (
+                <motion.button
+                  key={i}
+                  onClick={() => handleSelect(i)}
+                  disabled={answered}
+                  whileHover={!answered ? { scale: 1.01 } : {}}
+                  whileTap={!answered ? { scale: 0.99 } : {}}
+                  style={{
+                    display: 'flex', gap: 16, alignItems: 'center', padding: '20px 24px',
+                    border: `2px solid ${border}`, background: bg, color,
+                    cursor: answered ? 'default' : 'pointer', textAlign: 'left',
+                    fontSize: 16, fontWeight: 500, fontFamily: 'var(--font-body)',
+                    borderRadius: 8, boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
+                    transition: 'all 0.12s ease'
+                  }}
+                >
+                  <span style={{
+                    fontFamily: 'var(--font-mono)', fontSize: 13, fontWeight: 700,
+                    minWidth: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    borderRadius: '50%', background: letterBg, color: letterColor, flexShrink: 0
+                  }}>
+                    {String.fromCharCode(65 + i)}
+                  </span>
+                  <span style={{ lineHeight: 1.5 }}>{opt}</span>
+                </motion.button>
+              );
+            })}
+          </div>
+
+          {/* Explanation — slides in after answer */}
+          <AnimatePresence>
+            {answered && (
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -16 }}
+                transition={{ duration: 0.3 }}
+                style={{
+                  marginTop: 24, padding: '20px 24px',
+                  background: selectedIndex === q.correctIndex ? 'var(--pass-bg)' : 'var(--fail-bg)',
+                  border: `1px solid ${selectedIndex === q.correctIndex ? 'var(--pass)' : 'var(--fail)'}`,
+                  borderRadius: 8, fontSize: 14, lineHeight: 1.6,
+                  color: selectedIndex === q.correctIndex ? 'var(--pass)' : 'var(--fail)'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, fontWeight: 700 }}>
+                  {selectedIndex === q.correctIndex ? (
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" strokeWidth="2"/><path d="M6 10l3 3 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      Correct
+                    </span>
+                  ) : (
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" strokeWidth="2"/><path d="M6 14l8-8M6 6l8 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
+                      {selectedIndex === null ? 'Time Out' : 'Incorrect'}
+                    </span>
+                  )}
+                </div>
+                <div style={{ color: 'var(--fg)', fontSize: 14, lineHeight: 1.6 }}>
+                  {q.explanation}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
+
+      {/* Sticky Footer */}
+      <div style={{
+        padding: '20px 48px', borderTop: '1px solid var(--border)',
+        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        background: 'var(--surface)', position: 'sticky', bottom: 0, zIndex: 100
+      }}>
+        {/* Progress dots */}
+        <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+          {questions.map((_, i) => (
+            <div
+              key={i}
+              style={{
+                width: i === current ? 24 : 8, height: 8, borderRadius: 999,
+                background: i < current ? 'var(--pass)' : i === current ? 'var(--accent)' : 'var(--border)',
+                transition: 'width 0.3s, background 0.3s'
+              }}
+            />
+          ))}
+        </div>
+        
+        <div style={{ display: 'flex', gap: 12 }}>
+          <button onClick={() => navigate('/')} style={{ fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 700, padding: '12px 20px', border: '1px solid var(--border)', background: 'var(--surface)', cursor: 'pointer', borderRadius: 4 }}>
+            ABORT
+          </button>
+          <button
+            disabled={answered || selectedIndex === null}
+            onClick={() => { if (!answered && selectedIndex !== null) handleSelect(selectedIndex); }}
+            style={{
+              fontFamily: 'var(--font-mono)', fontSize: 13, fontWeight: 700, textTransform: 'uppercase',
+              padding: '14px 32px', borderRadius: 4,
+              background: answered || selectedIndex === null ? 'var(--muted)' : 'var(--accent)',
+              color: answered || selectedIndex === null ? 'var(--surface)' : 'var(--surface)',
+              border: '1px solid var(--border)', cursor: answered || selectedIndex === null ? 'not-allowed' : 'pointer',
+              boxShadow: answered || selectedIndex === null ? 'none' : '0 8px 24px rgba(0,163,255,0.3)',
+              opacity: answered || selectedIndex === null ? 0.6 : 1,
+              transition: 'all 0.15s'
+            }}
+          >
+            {answered ? (current + 1 === questions.length ? 'FINISH' : 'NEXT →') : 'SUBMIT'}
+          </button>
+        </div>
       </div>
     </motion.div>
   );
