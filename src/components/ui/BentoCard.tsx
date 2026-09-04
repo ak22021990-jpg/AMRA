@@ -10,7 +10,7 @@ interface BentoCardProps {
 }
 
 export const BentoCard = forwardRef<HTMLDivElement, BentoCardProps>(
-  ({ hover = true, padding = 'md', className, children, ...props }, ref) => {
+  ({ hover = true, padding = 'md', className, children }, ref) => {
     const paddingStyles = {
       sm: 'p-4',
       md: 'p-6',

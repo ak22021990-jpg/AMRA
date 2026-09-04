@@ -95,7 +95,6 @@ export function AnimatedQuestPath() {
           // Active = next uncompleted node
           const nextUncompleted = MODULE_ROUTES.find(r => !results[r]?.completed);
           const isActive = id === nextUncompleted;
-          const isLocked = !completed && !isActive;
 
           // Offset pattern: center, right, center, left, center
           const offsetClass = i % 2 === 0
