@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAssessmentStore } from '../store/assessmentStore';
 import { AnimatedQuestPath } from '../components/dashboard/AnimatedQuestPath';

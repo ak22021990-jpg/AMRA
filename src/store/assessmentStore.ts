@@ -24,9 +24,13 @@ interface AssessmentStore {
   unlockedAchievements: string[];
   currentStreak: number;
   bestStreak: number;
+  xp: number;
+  audioEnabled: boolean;
   moduleStartTime: number | null;
   startModule: () => void;
-  recordAnswer: (correct: boolean) => void;
+  recordAnswer: (correct: boolean, xpGained?: number) => void;
+  addXp: (amount: number) => void;
+  toggleAudio: () => void;
   setCandidate: (name: string, email: string) => void;
   recordResult: (result: ModuleResult) => void;
   resetModule: (moduleId: string) => void;
@@ -45,34 +49,44 @@ export const useAssessmentStore = create<AssessmentStore>((set, get) => ({
   unlockedAchievements: [],
   currentStreak: 0,
   bestStreak: 0,
+  xp: 0,
+  audioEnabled: true,
   moduleStartTime: null,
 
   startModule: () => {
     set({ moduleStartTime: Date.now() });
   },
 
-  recordAnswer: (correct: boolean) => {
-    const { currentStreak, bestStreak } = get();
+  recordAnswer: (correct: boolean, xpGained = 10) => {
+    const { currentStreak, bestStreak, xp } = get();
     if (correct) {
       const newStreak = currentStreak + 1;
       set({
         currentStreak: newStreak,
         bestStreak: Math.max(newStreak, bestStreak),
+        xp: xp + xpGained + (newStreak > 2 ? 5 : 0), // bonus xp for streak
       });
     } else {
       set({ currentStreak: 0 });
     }
   },
 
+  addXp: (amount: number) => set((state) => ({ xp: state.xp + amount })),
+  
+  toggleAudio: () => set((state) => ({ audioEnabled: !state.audioEnabled })),
+
   setCandidate: (name, email) => set({ candidateName: name, candidateEmail: email }),
 
   recordResult: (result) =>
     set((state) => {
-      const { moduleStartTime } = state;
+      const { moduleStartTime, xp } = state;
       const duration = moduleStartTime ? Math.round((Date.now() - moduleStartTime) / 1000) : undefined;
+      // Bonus XP for finishing module
+      const bonusXp = result.completed ? 50 : 0;
       return {
         results: { ...state.results, [result.moduleId]: { ...result, duration } },
         moduleStartTime: null,
+        xp: xp + bonusXp
       };
     }),
 
@@ -127,7 +141,7 @@ export const useAssessmentStore = create<AssessmentStore>((set, get) => ({
     const patternPct = pattern ? (pattern.score / pattern.total) * 100 : 0;
     const grammarPct = grammar ? (grammar.score / grammar.total) * 100 : 0;
 
-    // Weighted composite: Driving 35%, Listening 20%, Cognitive 20%, Pattern 15%, Grammar 10%
+    // Weighted composite
     const composite =
       (drivingPct * 0.35) +
       (listeningPct * 0.20) +
@@ -135,29 +149,28 @@ export const useAssessmentStore = create<AssessmentStore>((set, get) => ({
       (patternPct * 0.15) +
       (grammarPct * 0.10);
 
-    // Critical safety error hard-cap
     const criticalErrors = driving?.criticalErrors ?? 0;
 
     if (criticalErrors > 0) {
       signals.push(`${criticalErrors} critical safety error${criticalErrors > 1 ? 's' : ''} — requires review`);
-      return { label: 'Needs Review', color: '#EF4444', badge: 'SAFETY FLAG', signals };
+      return { label: 'Needs Review', color: 'var(--fail)', badge: 'SAFETY FLAG', signals };
     }
 
     if (composite >= 80) {
       if (drivingPct >= 80 && cognitivePct >= 80) signals.push('Strong driving + cognitive profile');
       if (listeningPct === 100) signals.push('Perfect listening retention');
       if (grammarPct === 100) signals.push('Excellent written communication');
-      return { label: 'MPCI Ready', color: '#10B981', badge: 'HIGH JUDGMENT', signals };
+      return { label: 'MPCI Ready', color: 'var(--pass)', badge: 'HIGH JUDGMENT', signals };
     }
 
     if (composite >= 60) {
       if (drivingPct >= 60) signals.push('Adequate driving knowledge');
       if (cognitivePct < 60) signals.push('Cognitive reasoning needs development');
-      return { label: 'Triage Candidate', color: '#F59E0B', badge: 'TRIAGE', signals };
+      return { label: 'Triage Candidate', color: 'var(--warn)', badge: 'TRIAGE', signals };
     }
 
     signals.push('Performance below threshold across key modules');
-    return { label: 'Not Recommended', color: '#EF4444', badge: 'NOT READY', signals };
+    return { label: 'Not Recommended', color: 'var(--fail)', badge: 'NOT READY', signals };
   },
 
   resetAssessment: () =>
@@ -168,6 +181,7 @@ export const useAssessmentStore = create<AssessmentStore>((set, get) => ({
       unlockedAchievements: [],
       currentStreak: 0,
       bestStreak: 0,
+      xp: 0,
       moduleStartTime: null,
     }),
 }));
