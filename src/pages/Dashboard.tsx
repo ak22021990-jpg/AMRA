@@ -1,9 +1,10 @@
-import React, { useState, useEffect, Suspense, lazy } from 'react';
+import React, { useState, useEffect, Suspense, lazy, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAssessmentStore } from '../store/assessmentStore';
 import { AnimatedQuestPath } from '../components/dashboard/AnimatedQuestPath';
 import { useConfetti } from '../hooks/useConfetti';
 import { PillButton } from '../components/ui/PillButton';
+import { useAmbientSound, type Soundscape } from '../hooks/useAmbientSound';
 
 const DrivingHeroScene = lazy(() => import('../components/three/DrivingHeroScene').then(m => ({ default: m.DrivingHeroScene })));
 
@@ -16,6 +17,12 @@ export default function Dashboard() {
   const [selectedChoice, setSelectedChoice] = useState<number | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
   const [activeSoundscape, setActiveSoundscape] = useState<string>('silence');
+  const { setSoundscape } = useAmbientSound();
+
+  const handleSoundscapeChange = useCallback((s: Soundscape) => {
+    setActiveSoundscape(s);
+    setSoundscape(s);
+  }, [setSoundscape]);
 
   useEffect(() => {
     // Welcome confetti on first visit
@@ -346,15 +353,15 @@ export default function Dashboard() {
 <div>
 <label className="text-[11px] font-label-telemetry text-slate-500 block mb-2 font-bold uppercase tracking-wider">Cabin Ambient Soundscape</label>
 <div className="grid grid-cols-3 gap-2">
-<button className={`audio-btn p-2 rounded-xl bg-slate-50 border text-[11px] font-headline-sm flex flex-col items-center gap-1 shadow-sm transition-all ${activeSoundscape === 'silence' ? 'border-sensor-cyan text-midnight-slate font-bold' : 'border-slate-200 text-slate-600 font-medium hover:bg-slate-100'}`} onClick={() => setActiveSoundscape('silence')}>
+<button className={`audio-btn p-2 rounded-xl bg-slate-50 border text-[11px] font-headline-sm flex flex-col items-center gap-1 shadow-sm transition-all ${activeSoundscape === 'silence' ? 'border-sensor-cyan text-midnight-slate font-bold' : 'border-slate-200 text-slate-600 font-medium hover:bg-slate-100'}`} onClick={() => handleSoundscapeChange('silence')}>
 <span className={`material-symbols-outlined text-sm ${activeSoundscape === 'silence' ? 'text-sensor-cyan' : 'text-slate-500'}`} data-icon="electric_bolt">electric_bolt</span>
                   Cabin Silence
                 </button>
-<button className={`audio-btn p-2 rounded-xl bg-slate-50 border text-[11px] font-headline-sm flex flex-col items-center gap-1 transition-all ${activeSoundscape === 'rain' ? 'border-sensor-cyan text-midnight-slate font-bold shadow-sm' : 'border-slate-200 text-slate-600 font-medium hover:bg-slate-100'}`} onClick={() => setActiveSoundscape('rain')}>
+<button className={`audio-btn p-2 rounded-xl bg-slate-50 border text-[11px] font-headline-sm flex flex-col items-center gap-1 transition-all ${activeSoundscape === 'rain' ? 'border-sensor-cyan text-midnight-slate font-bold shadow-sm' : 'border-slate-200 text-slate-600 font-medium hover:bg-slate-100'}`} onClick={() => handleSoundscapeChange('rain')}>
 <span className={`material-symbols-outlined text-sm ${activeSoundscape === 'rain' ? 'text-sensor-cyan' : 'text-slate-500'}`} data-icon="water_drop">water_drop</span>
                   Rain on Shield
                 </button>
-<button className={`audio-btn p-2 rounded-xl bg-slate-50 border text-[11px] font-headline-sm flex flex-col items-center gap-1 transition-all ${activeSoundscape === 'glide' ? 'border-sensor-cyan text-midnight-slate font-bold shadow-sm' : 'border-slate-200 text-slate-600 font-medium hover:bg-slate-100'}`} onClick={() => setActiveSoundscape('glide')}>
+<button className={`audio-btn p-2 rounded-xl bg-slate-50 border text-[11px] font-headline-sm flex flex-col items-center gap-1 transition-all ${activeSoundscape === 'glide' ? 'border-sensor-cyan text-midnight-slate font-bold shadow-sm' : 'border-slate-200 text-slate-600 font-medium hover:bg-slate-100'}`} onClick={() => handleSoundscapeChange('glide')}>
 <span className={`material-symbols-outlined text-sm ${activeSoundscape === 'glide' ? 'text-sensor-cyan' : 'text-slate-500'}`} data-icon="graphic_eq">graphic_eq</span>
                   Electric Glide
                 </button>

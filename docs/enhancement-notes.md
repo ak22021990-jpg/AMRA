@@ -56,10 +56,26 @@
 - **R3F v9 API changes**: `<line>` conflicts with SVG JSX — use drei `<Line>` instead. `bufferAttribute` JSX needs geometry constructed in `useMemo` with `THREE.BufferAttribute`, not inline JSX props
 - **Three.js bundle impact**: JS chunk now 1,389 kB (gzip: 386 kB) — above 500 kB warning threshold. Consider code-splitting Three.js with `React.lazy` for production
 
+### ResultsReport Animations (Task 7)
+- Framer Motion page entrance (`motion.div` with `pageTransition`)
+- Staggered sidebar metadata items
+- Module cards grid with stagger entrance + hover lift (`y: -4`)
+- Spring scale animation on composite score ring + deployment badge
+- Achievement cards with stagger entrance + hover scale
+
+### Three.js Code-Splitting (Task 7)
+- `DrivingHeroScene` loaded via `React.lazy()` + `Suspense`
+- Main bundle: 1,389 kB → 485 kB (lazy chunk: 906 kB)
+
+### PillButton Integration (Task 7)
+- Hero banner CTA buttons replaced with `PillButton` (primary + secondary variants)
+- Framer Motion whileHover/whileTap built into component
+
 ## Remaining Work (not yet done)
-- Add Framer Motion entrance animations to ResultsReport.tsx
-- Integrate new UI components (BentoCard, PillButton, ProgressRing) into existing screens
-- Code-split Three.js for smaller initial bundle
+- ~~Add Framer Motion entrance animations to ResultsReport.tsx~~ ✅ DONE
+- ~~Code-split Three.js for smaller initial bundle~~ ✅ DONE
+- ~~PillButton hero integration~~ ✅ DONE
+- Integrate BentoCard and ProgressRing into existing screens (deferred — existing inline styles work, BentoCard swap caused JSX tree conflicts)
 - Add audio soundscape playback logic (currently state-only, no actual audio)
 - Responsive testing on mobile viewports
 - Accessibility audit (ARIA labels, keyboard nav, screen reader testing)
