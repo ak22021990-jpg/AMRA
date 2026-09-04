@@ -83,7 +83,7 @@ export default function QuestionCard({
         </div>
       </div>
 
-      <div style={{ marginBottom: 8 }}>
+      <div style={{ marginBottom: 12 }}>
         {/* Progress bar */}
         <div className="bar">
           <div style={{ width: `${(questionNumber / totalQuestions) * 100}%` }} />
@@ -91,8 +91,9 @@ export default function QuestionCard({
       </div>
 
       <p style={{
-        fontSize: 22, lineHeight: 1.3, letterSpacing: '-0.02em',
-        margin: '8px 0 16px', fontWeight: 700
+        fontFamily: 'var(--font-body)',
+        fontSize: 24, lineHeight: 1.4, letterSpacing: '-0.01em',
+        margin: '8px 0 24px', fontWeight: 500, color: 'var(--fg)'
       }}>
         {question}
       </p>
@@ -106,7 +107,7 @@ export default function QuestionCard({
             disabled={selected !== null || disabled}
             style={{
               textAlign: 'left', width: '100%',
-              padding: '14px 15px',
+              padding: '16px 20px',
               border: `1px solid ${
                 selected === null ? 'var(--line)'
                 : !showFeedback
@@ -115,7 +116,7 @@ export default function QuestionCard({
                 : i === selected ? 'var(--bad-border)'
                 : 'var(--line)'
               }`,
-              borderRadius: 13,
+              borderRadius: 8,
               background: selected === null ? 'var(--panel)'
                 : !showFeedback ? 'var(--panel)'
                 : i === correctIndex ? 'var(--good-bg)'
@@ -123,16 +124,17 @@ export default function QuestionCard({
                 : 'var(--panel)',
               color: 'var(--ink)',
               cursor: selected !== null ? 'default' : 'pointer',
-              fontWeight: 650, lineHeight: 1.35,
+              fontWeight: 500, fontSize: 15,
               transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
             }}
           >
             <span style={{
-              display: 'inline-block', width: 26, height: 26,
-              borderRadius: '50%', background: 'var(--surface-subtle)',
+              display: 'inline-block', width: 28, height: 28,
+              borderRadius: '6px', background: 'var(--surface-subtle)',
+              border: '1px solid var(--border)',
               textAlign: 'center', lineHeight: '26px',
-              fontSize: 12, fontWeight: 800, marginRight: 10,
-              color: 'var(--ink)'
+              fontSize: 12, fontFamily: 'var(--font-mono)', fontWeight: 700, marginRight: 16,
+              color: 'var(--muted)'
             }}>
               {!showFeedback && selected === i ? '✓' : String.fromCharCode(65 + i)}
             </span>

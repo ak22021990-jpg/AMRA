@@ -1,4 +1,7 @@
-/* Base reset — all design tokens live in styles/tokens.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 #root {
@@ -6,4 +9,5 @@
   min-height: 100svh;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
 }

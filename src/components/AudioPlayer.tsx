@@ -57,28 +57,34 @@ export default function AudioPlayer({ src, onPlay, label }: AudioPlayerProps) {
 
   return (
     <div style={{
-      background: '#101828', borderRadius: 18, padding: '20px 24px',
-      color: 'white', display: 'flex', flexDirection: 'column', gap: 14,
-      marginBottom: 20,
+      background: 'var(--surface)', borderRadius: 12, padding: '24px',
+      border: '1px solid var(--border)',
+      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05), 0 8px 24px rgba(0,0,0,0.5)',
+      color: 'var(--fg)', display: 'flex', flexDirection: 'column', gap: 16,
+      marginBottom: 24,
     }}>
       <audio ref={audioRef} src={src} preload="metadata" aria-label={label || 'Audio clip'} />
 
       {label && (
-        <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.08em',
-          textTransform: 'uppercase', color: '#65d1ff' }}>
+        <div style={{ fontSize: 11, fontFamily: 'var(--font-mono)', fontWeight: 700, letterSpacing: '0.15em',
+          textTransform: 'uppercase', color: 'var(--accent)' }}>
           {label}
         </div>
       )}
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
         <button
           onClick={togglePlay}
           aria-label={playing ? 'Pause audio' : 'Play audio'}
           style={{
-            background: playing ? '#2563eb' : 'white', color: playing ? 'white' : '#101828',
-            border: 'none', borderRadius: '50%', width: 44, height: 44,
+            background: playing ? 'rgba(56, 189, 248, 0.2)' : 'var(--surface-subtle)', 
+            color: playing ? 'var(--accent)' : 'var(--muted)',
+            border: `1px solid ${playing ? 'var(--accent)' : 'var(--border)'}`, 
+            borderRadius: '50%', width: 48, height: 48,
             cursor: 'pointer', fontSize: 18, display: 'flex', alignItems: 'center',
             justifyContent: 'center', flexShrink: 0, fontWeight: 700,
+            transition: 'all 0.2s',
+            boxShadow: playing ? '0 0 15px rgba(56, 189, 248, 0.4)' : 'none',
           }}
         >
           {playing ? '⏸' : '▶'}
@@ -92,18 +98,19 @@ export default function AudioPlayer({ src, onPlay, label }: AudioPlayerProps) {
             aria-valuemax={100}
             aria-valuenow={Math.round(pct)}
             style={{
-              height: 6, borderRadius: 999, background: 'rgba(255,255,255,0.15)',
+              height: 4, borderRadius: 2, background: 'var(--border)',
               overflow: 'hidden', cursor: 'pointer',
             }}
           >
             <div style={{
               height: '100%', width: `${pct}%`,
-              background: 'linear-gradient(90deg, #2563eb, #7c3aed)',
-              transition: 'width 0.2s',
+              background: 'var(--accent)',
+              boxShadow: '0 0 10px var(--accent)',
+              transition: 'width 0.2s linear',
             }} />
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between',
-            fontSize: 11, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>
+            fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--muted)', marginTop: 8 }}>
             <span>{formatTime(progress)}</span>
             <span>{formatTime(duration)}</span>
           </div>
@@ -111,7 +118,7 @@ export default function AudioPlayer({ src, onPlay, label }: AudioPlayerProps) {
       </div>
 
       {!hasPlayed && (
-        <div style={{ fontSize: 12, color: '#ffc65c', fontWeight: 700 }}>
+        <div style={{ fontSize: 12, fontFamily: 'var(--font-mono)', color: 'var(--warn)', fontWeight: 600 }}>
           ⚠ Press play to listen before answering
         </div>
       )}

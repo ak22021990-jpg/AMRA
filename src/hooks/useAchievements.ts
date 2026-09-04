@@ -67,7 +67,10 @@ export function useAchievements() {
       if (!prevUnlockedRef.current.has(ach.id) && ach.condition(state)) {
         currentUnlocked.add(ach.id);
         newAchievement.current = ach;
-        useAssessmentStore.setState({ unlockedAchievements: Array.from(currentUnlocked) });
+        // Defer to break out of any synchronous Zustand subscriber call stack
+        setTimeout(() => {
+          useAssessmentStore.setState({ unlockedAchievements: Array.from(currentUnlocked) });
+        }, 0);
         break;
       }
     }
