@@ -6,6 +6,7 @@ import { useConfetti } from '../hooks/useConfetti';
 import { useSound } from '../hooks/useSound';
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { scormInit, scormSetScore, scormSetZoneData, scormComplete, scormFinish } from '../lib/scorm';
 import { pageTransition, staggerContainer, staggerItem } from '../lib/animations';
 
 const MODULE_ORDER = ['driving', 'listening', 'cognitive', 'pattern', 'grammar'] as const;
@@ -75,6 +76,18 @@ export default function ResultsReport() {
     if (composite >= 80) {
       fireConfetti();
     }
+
+    // SCORM 1.2 reporting
+    scormInit();
+    scormSetScore(composite);
+    const zoneScores = MODULE_ORDER.reduce((acc, id, i) => {
+      acc[id] = Math.round(modulePcts[i]);
+      return acc;
+    }, {} as Record<string, number>);
+    scormSetZoneData(zoneScores);
+    scormComplete(allPass);
+    scormFinish();
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

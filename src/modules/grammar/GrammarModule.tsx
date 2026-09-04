@@ -26,7 +26,7 @@ const questions: GrammarQuestion[] = [
   },
   {
     id: 'A2', section: 'A', sectionName: 'Subject-Verb-Object', skillTag: 'grammar',
-    question: 'Choose the sentence with the correct SVO structure.',
+    question: 'Choose the sentence with the correct Subject-Verb-Object (SVO) structure.',
     options: ['The case the analyst escalated.', 'The analyst escalated the case.', 'Escalated the analyst the case.', 'The case was the analyst escalated.'],
     correctIndex: 1, explanation: 'The analyst (S) escalated (V) the case (O).',
   },
@@ -38,13 +38,13 @@ const questions: GrammarQuestion[] = [
   },
   {
     id: 'A4', section: 'A', sectionName: 'Subject-Verb-Object', skillTag: 'grammar',
-    question: 'Choose the sentence that correctly follows the SVO pattern.',
+    question: 'Choose the sentence that correctly follows the Subject-Verb-Object (SVO) pattern.',
     options: ['The account the support team restricted.', 'Restricted the support team the account.', 'The support team restricted the account.', 'The account restricted the support team.'],
     correctIndex: 2, explanation: 'The support team (S) restricted (V) the account (O).',
   },
   {
     id: 'A5', section: 'A', sectionName: 'Subject-Verb-Object', skillTag: 'grammar',
-    question: 'Which sentence follows the correct SVO structure?',
+    question: 'Which sentence follows the correct Subject-Verb-Object (SVO) structure?',
     options: ['The suspicious activity reported the customer.', 'Reported the customer the suspicious activity.', 'The customer the suspicious activity reported.', 'The customer reported the suspicious activity.'],
     correctIndex: 3, explanation: 'The customer (S) reported (V) the suspicious activity (O).',
   },

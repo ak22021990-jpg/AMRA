@@ -5,61 +5,160 @@ import { useSound } from '../../hooks/useSound';
 import { motion } from 'framer-motion';
 
 const questions = [
+  // --- ARIZONA BLOCK (5) ---
   {
-    state: 'Arizona',
-    stateCode: 'AZ',
-    skillTag: 'state_knowledge',
-    critical: true,
-    videoLabel: 'AZ · School Bus Stop',
+    state: 'Arizona', stateCode: 'AZ', skillTag: 'state_knowledge', critical: true,
+    videoLabel: 'AZ · School Bus Stop — Critical',
     videoFile: 'Q1.mp4',
     videoPrompt: 'School bus, red lights, stop arm out',
     question: 'A school bus ahead has stopped with red lights flashing and its stop arm extended. What should the driver do?',
-    options: [
-      'Stop only if you are behind the bus',
-      'Stop regardless of your direction of travel on an undivided roadway',
-      'Slow down to 15 mph and pass cautiously',
-      'Honk to alert the bus driver and proceed',
-    ],
+    options: ['Stop only if you are behind the bus','Stop regardless of your direction of travel on an undivided roadway','Slow down to 15 mph and pass cautiously','Honk to alert the bus driver and proceed'],
     correctIndex: 1,
-    explanation: 'In Arizona, you must stop for a school bus with flashing red lights and an extended stop arm on any undivided roadway, regardless of which direction you are traveling.',
+    explanation: 'In Arizona, you must stop for a school bus with flashing red lights and an extended stop arm on any undivided roadway, regardless of direction.',
   },
   {
-    state: 'California',
-    stateCode: 'CA',
-    skillTag: 'state_knowledge',
-    critical: false,
-    videoLabel: 'CA · Highway Lane Usage',
+    state: 'Arizona', stateCode: 'AZ', skillTag: 'intent_prediction', critical: false,
+    videoLabel: 'AZ · Late Braking, Wheels Angled Left',
     videoFile: 'Q2.mp4',
-    videoPrompt: 'Towing a trailer on a 4-lane highway',
-    question: 'When towing a trailer on a highway with four or more lanes in your direction, which lanes are you permitted to use?',
-    options: [
-      'Any lane you choose',
-      'The two rightmost lanes',
-      'Only the far right lane',
-      'The carpool (HOV) lane',
-    ],
+    videoPrompt: 'Late braking with front wheels angled left',
+    question: 'The silver sedan ahead brakes late and its front wheels are visibly turned left toward your path. What does this cue most likely predict?',
+    options: ['The driver will park on the right','The driver intends to turn left across your path','The driver is experiencing brake fade','The driver will reverse'],
     correctIndex: 1,
-    explanation: 'In California, if you are towing a trailer or driving a large truck on a highway with four or more lanes in your direction, you may only drive in the two rightmost lanes.',
+    explanation: 'Late braking combined with wheels angled left strongly predicts an imminent left turn across the ego path — prepare to yield and increase spacing.',
   },
   {
-    state: 'New York',
-    stateCode: 'NY',
-    skillTag: 'state_knowledge',
-    critical: false,
-    videoLabel: 'NY · Pedestrian Yield',
+    state: 'Arizona', stateCode: 'AZ', skillTag: 'occlusion', critical: true,
+    videoLabel: 'AZ · Pickup Blocking Sidewalk — Critical',
     videoFile: 'Q3.mp4',
-    videoPrompt: 'Pedestrian with white cane at crosswalk',
-    question: 'A driver approaching a pedestrian using a white cane should:',
-    options: [
-      'Assume the person can see the vehicle',
-      'Exercise heightened caution and yield as required',
-      'Honk continuously',
-      'Pass quickly before they step out',
-    ],
-    correctIndex: 1,
-    explanation: 'In New York, a pedestrian with a white cane or guide dog is blind or visually impaired. Drivers must exercise heightened caution and always yield the right-of-way.',
+    videoPrompt: 'Pickup blocking sidewalk view at crosswalk',
+    question: 'A large pickup in the adjacent lane completely blocks your view of the sidewalk and the near half of the crosswalk. What is the safest action?',
+    options: ['Maintain speed — nothing is visible','Accelerate to clear the zone quickly','Slow, cover the brake and be prepared to stop for an unseen pedestrian','Sound the horn continuously'],
+    correctIndex: 2,
+    explanation: 'Occlusion is a critical cue — a child or pedestrian could be hidden behind the pickup. Slow and prepare to stop; do not assume clear.',
   },
-].slice(0, 5);
+  {
+    state: 'Arizona', stateCode: 'AZ', skillTag: 'risk_recognition', critical: false,
+    videoLabel: 'AZ · Erratic Lead Vehicle',
+    videoFile: 'Q4.mp4',
+    videoPrompt: 'Vehicle varying speed, drifting onto lane markings',
+    question: 'The white sedan ahead repeatedly varies speed and drifts onto the lane markings, correcting each time. What risk does this indicate?',
+    options: ['The driver is following navigation instructions','The driver may be impaired or distracted — increase following distance immediately','The lane markings are faded and hard to see','The driver is signaling an emergency'],
+    correctIndex: 1,
+    explanation: 'Repeated speed changes plus weaving onto markings indicates impairment/distraction. Increase gap, avoid overtaking alongside, be ready to respond.',
+  },
+  {
+    state: 'Arizona', stateCode: 'AZ', skillTag: 'complex_decision', critical: true,
+    videoLabel: 'AZ · Green Signal, Pedestrian Crossing — Critical',
+    videoFile: 'Q5.mp4',
+    videoPrompt: 'Green signal, pedestrian still in crosswalk',
+    question: 'Your signal turns green while a pedestrian is still crossing the crosswalk ahead. What should you do?',
+    options: ['Proceed — you have the green','Honk to make the pedestrian move faster','Wait until the pedestrian has fully cleared the crosswalk before proceeding','Edge forward to pressure the pedestrian'],
+    correctIndex: 2,
+    explanation: 'Green does not override the duty to yield to pedestrians already in the crosswalk. Remain stopped until fully clear.',
+  },
+  // --- CALIFORNIA BLOCK (5) ---
+  {
+    state: 'California', stateCode: 'CA', skillTag: 'state_knowledge', critical: false,
+    videoLabel: 'CA · Roundabout Entry',
+    videoFile: 'Q6.mp4',
+    videoPrompt: 'Roundabout entry',
+    question: 'You approach a single-lane roundabout at the yield line with two vehicles already circulating from the left. What is correct?',
+    options: ['Enter immediately — you have right-of-way','Stop and wait for a full gap regardless of flow','Yield to circulating traffic and enter when safe','Honk to alert circulating drivers'],
+    correctIndex: 2,
+    explanation: 'At a roundabout, yield to traffic already circulating. Enter only when the circulating lane is clear — no stop required if gap is safe.',
+  },
+  {
+    state: 'California', stateCode: 'CA', skillTag: 'intent_prediction', critical: false,
+    videoLabel: 'CA · Pedestrian Weight-Shift at Curb',
+    videoFile: 'Q7.mp4',
+    videoPrompt: 'Pedestrian weight-shift at curb, SF corner',
+    question: 'A pedestrian at the corner shifts weight forward, leans toward traffic and places a toe over the curb line without stepping out. What is the best prediction?',
+    options: ['They are waiting for a bus','They intend to cross — prepare to yield before they enter the roadway','They lost their balance','They are posing for a photo'],
+    correctIndex: 1,
+    explanation: 'Forward weight-shift and toe over the curb are intent cues for imminent crossing. Cover brake, prepare to stop.',
+  },
+  {
+    state: 'California', stateCode: 'CA', skillTag: 'occlusion', critical: true,
+    videoLabel: 'CA · Double-Parked Van — Critical',
+    videoFile: 'Q8.mp4',
+    videoPrompt: 'Double-parked delivery van before crosswalk',
+    question: 'A white delivery van double-parked before the crosswalk hides the near curb entirely. How should you proceed?',
+    options: ['Hold speed and pass tightly','Swerve sharply without checking','Slow, creep left around the van while scanning the hidden crosswalk for pedestrians','Stop permanently and wait for the van to leave'],
+    correctIndex: 2,
+    explanation: 'Double-parked van creates full occlusion of the crosswalk entry. Slow, shift left to open sightlines, be ready to stop — critical pedestrian zone.',
+  },
+  {
+    state: 'California', stateCode: 'CA', skillTag: 'risk_recognition', critical: false,
+    videoLabel: 'CA · Dooring Risk',
+    videoFile: 'Q9.mp4',
+    videoPrompt: 'Door opening beside a bike lane',
+    question: 'A parked sedan’s rear door begins to open into the green bike lane while a cyclist approaches from behind. What hazard must you anticipate?',
+    options: ['The door will close immediately — ignore it','Dooring risk plus a cyclist swerving left into your lane — give space and be ready to brake','Only the cyclist matters','Only the parked car matters'],
+    correctIndex: 1,
+    explanation: 'An opening door into a bike lane forces a cyclist to swerve into traffic. Anticipate both hazards together and create lateral space.',
+  },
+  {
+    state: 'California', stateCode: 'CA', skillTag: 'complex_decision', critical: true,
+    videoLabel: 'CA · Cyclist Against Signal — Critical',
+    videoFile: 'Q10.mp4',
+    videoPrompt: 'Cyclist enters against signal while AV has green',
+    question: 'Your signal is green and you begin to move when a cyclist crosses against their signal directly across your path. What is required?',
+    options: ['Proceed — green means you have priority','Honk and hold speed','Yield to the cyclist despite having green and allow them to clear','Swerve into the opposite lane'],
+    correctIndex: 2,
+    explanation: 'Right-of-way must be yielded to avoid a collision even when you have green. Cyclist is vulnerable — stop and let them clear.',
+  },
+  // --- NEW YORK BLOCK (5) ---
+  {
+    state: 'New York', stateCode: 'NY', skillTag: 'state_knowledge', critical: false,
+    videoLabel: 'NY · White Cane',
+    videoFile: 'Q11.mp4',
+    videoPrompt: 'Pedestrian using a white cane',
+    question: 'A pedestrian sweeping a long white cane in the crosswalk ahead is entering the roadway. How should you respond?',
+    options: ['Assume they can see you','Exercise heightened caution and yield as required','Honk continuously','Pass quickly before they step out'],
+    correctIndex: 1,
+    explanation: 'A pedestrian with a white cane is blind or visually impaired. NY requires heightened caution and yielding the right-of-way.',
+  },
+  {
+    state: 'New York', stateCode: 'NY', skillTag: 'intent_prediction', critical: false,
+    videoLabel: 'NY · Taxi Slowing at Curb',
+    videoFile: 'Q12.mp4',
+    videoPrompt: 'Taxi slowing abruptly at the curb',
+    question: 'A yellow taxi ahead slows abruptly toward the curb without signals near pedestrians on the sidewalk. What should you predict?',
+    options: ['The taxi will accelerate away','An imminent stop and possible door opening / passenger entry — avoid overtaking closely, prepare to stop','The taxi is turning left','The taxi has a mechanical failure'],
+    correctIndex: 1,
+    explanation: 'Abrupt curb-ward slowing predicts a stop for pickup/drop-off and sudden door opening. Hold position, do not pass closely.',
+  },
+  {
+    state: 'New York', stateCode: 'NY', skillTag: 'occlusion', critical: false,
+    videoLabel: 'NY · Knees-Down Pedestrian',
+    videoFile: 'Q13.mp4',
+    videoPrompt: 'Pedestrian visible only knees-down between parked cars',
+    question: 'Between two tightly parked cars you can see only a pair of legs at knee height facing the road. What does this imply?',
+    options: ['A child playing who will remain still','An adult hidden by parked cars about to emerge — expect a pedestrian to step out','A mannequin display','Nothing — legs cannot indicate intent'],
+    correctIndex: 1,
+    explanation: 'Knees-down visibility is a classic occlusion cue that a pedestrian’s upper body is hidden and emergence is imminent. Slow and prepare to stop.',
+  },
+  {
+    state: 'New York', stateCode: 'NY', skillTag: 'risk_recognition', critical: false,
+    videoLabel: 'NY · Bus Pulling to Curb',
+    videoFile: 'Q14.mp4',
+    videoPrompt: 'Cyclist to the right of a bus pulling to the curb',
+    question: 'A city bus angles toward the curb to stop while a cyclist rides in the narrowing gap between the bus and curb. What is the safest decision?',
+    options: ['Squeeze through alongside — the gap will hold','Accelerate past both','Hold back — the closing gap will trap the cyclist, do not enter the pinch','Honk at the cyclist'],
+    correctIndex: 2,
+    explanation: 'Bus-to-curb creates a closing pinch with the cyclist at risk of being squeezed. Hold position behind; never occupy the narrowing gap.',
+  },
+  {
+    state: 'New York', stateCode: 'NY', skillTag: 'complex_decision', critical: true,
+    videoLabel: 'NY · Aggressive Merge — Critical',
+    videoFile: 'Q15.mp4',
+    videoPrompt: 'Aggressive driver forcing into the lane',
+    question: 'In heavy traffic a black SUV in the adjacent lane forces its nose into your lane with minimal gap and no signal. What is the safest response?',
+    options: ['Accelerate to close the gap','Force the SUV out by holding speed','Lift off the accelerator, maintain gap and allow the incomplete maneuver to complete without contact','Swerve into oncoming traffic'],
+    correctIndex: 2,
+    explanation: 'Defensive yielding: lift off, preserve gap, allow the aggressive merge to complete without contact. Do not contest the gap.',
+  },
+].slice(0, 15);
 
 export default function DrivingModule() {
   const navigate = useNavigate();
@@ -206,12 +305,12 @@ export default function DrivingModule() {
           </span>
           <span style={{ color: 'var(--muted)' }}>/</span>
           <span style={{ fontFamily: 'var(--font-display)', fontSize: 14, fontWeight: 600, color: 'var(--fg)' }}>
-            Urban Occlusion & Crosswalk Yield
+            {q.videoLabel}
           </span>
         </div>
         <div style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 16px', background: 'var(--surface-subtle)', borderRadius: 999, border: '1px solid var(--border)' }}>
-            <span style={{ fontSize: 10, textTransform: 'uppercase', color: 'var(--muted)', fontWeight: 700, letterSpacing: '0.05em' }}>REMAINING</span>
+            <span style={{ fontSize: 10, textTransform: 'uppercase', color: 'var(--muted)', fontWeight: 700, letterSpacing: '0.05em' }}>{q.state}</span>
             <span style={{ fontFamily: 'var(--font-mono)', fontSize: 14, fontWeight: 700, color: timeLeft < 30 ? 'var(--fail)' : 'var(--accent)' }}>
               {formatTime(timeLeft)}
             </span>

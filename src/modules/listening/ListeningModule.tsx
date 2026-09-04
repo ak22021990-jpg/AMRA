@@ -9,43 +9,49 @@ const questions = [
     sectionName: 'Customer Complaint — Disputed Charge',
     audioFile: `${import.meta.env.BASE_URL}audio/Customer Complaint - Audio 2 (2).mp3`,
     instruction: 'Listen to the customer call, then answer the question.',
-    question: 'How much was the disputed charge?',
-    options: ['$24.80', '$26.40', '$28.40', '$38.40'],
+    question: 'What action did the agent say they would take after hearing the customer\'s complaint?',
+    options: [
+      'Immediately issue a refund',
+      'Transfer the call to a supervisor',
+      'Look into the disputed charge',
+      'Ask the customer to call back later',
+    ],
     correctIndex: 2,
     skillTag: 'listening_comprehension',
-    explanation: 'The customer clearly states the disputed amount was $28.40 during the call.',
-    transcript:
-      'Customer: I was charged $28.40 for a ride I never took. That is not right. I need this fixed immediately. Agent: I understand your frustration. Let me look into this disputed charge for you.',
+    explanation: 'The agent says "Let me look into this disputed charge for you" — indicating they will investigate, not immediately refund or escalate.',
+    transcript: 'Customer: I was charged $28.40 for a ride I never took. That is not right. I need this fixed immediately. Agent: I understand your frustration. Let me look into this disputed charge for you.',
   },
   {
     sectionName: 'Fraud Conversation — Account Compromise',
     audioFile: `${import.meta.env.BASE_URL}audio/Fraud Related Conversation - Audio 3.mp3`,
     instruction: 'Listen to the fraud conversation, then answer the question.',
-    question: "What were the last four digits of the customer's original phone number?",
-    options: ['2241', '4421', '4412', '4221'],
-    correctIndex: 3,
+    question: 'What did the agent specifically tell the customer not to share?',
+    options: [
+      'Their trip history',
+      'Their email address',
+      'Their password or verification codes',
+      'Their pickup location',
+    ],
+    correctIndex: 2,
     skillTag: 'detail_retention',
-    explanation: 'The customer mentions the last four digits 4221 when verifying their original phone number.',
-    transcript:
-      'Customer: Someone accessed my account and changed my phone number. My old number ended in 4221. Agent: I see the unauthorized changes. We will secure your account right away.',
+    explanation: 'The agent warns the customer never to share their password or verification codes with anyone claiming to be support.',
+    transcript: 'Customer: Someone accessed my account and changed my phone number. My old number ended in 4221. Agent: I see the unauthorized changes. We will secure your account right away. Never share your password or verification codes with anyone, even if they claim to be support.',
   },
   {
     sectionName: 'Multiple Instructions — Agent Procedure',
     audioFile: `${import.meta.env.BASE_URL}audio/Instructions With Multiple Details - Audio 5.mp3`,
     instruction: 'Listen to the agent procedure recording, then answer the question.',
-    question: 'What should the agent NOT do while reviewing the case?',
+    question: 'According to the supervisor, what is the FIRST step an agent must take when reviewing a case?',
     options: [
+      'Categorize the case type',
       'Review the trip details',
-      'Categorize the case',
-      "Make changes to the customer's account",
-      'Review the transaction',
+      'Contact the customer for confirmation',
+      'Review the transaction records',
     ],
-    correctIndex: 2,
+    correctIndex: 1,
     skillTag: 'procedural_attention',
-    explanation:
-      'Agent procedure prohibits making account changes during the review phase — changes require supervisor approval.',
-    transcript:
-      "Supervisor: When reviewing a case, first review the trip details, then categorize the case. Do not make changes to the customer's account during review. Changes require supervisor approval. Finally, review the transaction.",
+    explanation: 'The supervisor states "first review the trip details" — this is explicitly the first step before categorizing or reviewing the transaction.',
+    transcript: 'Supervisor: When reviewing a case, first review the trip details, then categorize the case. Do not make changes to the customer\'s account during review. Changes require supervisor approval. Finally, review the transaction.',
   },
 ];
 
@@ -67,10 +73,12 @@ function WaveformPanel({
   audioSrc,
   onPlay,
   onPlayingChange,
+  onEnded,
 }: {
   audioSrc: string;
   onPlay: () => void;
   onPlayingChange: (playing: boolean) => void;
+  onEnded: () => void;
 }) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const progressBarRef = useRef<HTMLDivElement>(null);
@@ -180,7 +188,10 @@ function WaveformPanel({
       <audio
         ref={audioRef}
         src={audioSrc}
-        onEnded={() => setPlayState(false)}
+        onEnded={() => {
+          setPlayState(false);
+          onEnded();
+        }}
         onLoadedMetadata={() => setDuration(audioRef.current?.duration ?? 0)}
         onTimeUpdate={() => setCurrentTime(audioRef.current?.currentTime ?? 0)}
       />
@@ -285,35 +296,7 @@ function WaveformPanel({
 
       {/* ── Controls ── */}
       <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
-        {/* Replay — circle ghost */}
-        <button
-          onClick={replay}
-          title="Replay from start"
-          style={{
-            width: 40,
-            height: 40,
-            borderRadius: '50%',
-            border: '1px solid var(--border)',
-            background: 'transparent',
-            color: 'var(--muted)',
-            fontSize: 17,
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            transition: 'border-color 0.15s, color 0.15s',
-          }}
-          onMouseEnter={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--accent)';
-            (e.currentTarget as HTMLButtonElement).style.color = 'var(--accent)';
-          }}
-          onMouseLeave={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--border)';
-            (e.currentTarget as HTMLButtonElement).style.color = 'var(--muted)';
-          }}
-        >
-          ↺
-        </button>
+
 
         {/* Play/pause — filled circle, Spotify-style */}
         <button
@@ -357,6 +340,7 @@ export default function ListeningModule() {
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState<boolean[]>([]);
   const [hasPlayed, setHasPlayed] = useState(false);
+  const [audioEnded, setAudioEnded] = useState(false);
   const [audioPlaying, setAudioPlaying] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [answered, setAnswered] = useState(false);
@@ -402,7 +386,7 @@ export default function ListeningModule() {
 
   const handleSelect = useCallback(
     (idx: number) => {
-      if (answered || !hasPlayed) return;
+      if (answered || !audioEnded) return;
       const q = questions[current];
       const isCorrect = idx === q.correctIndex;
       setSelectedIndex(idx);
@@ -417,7 +401,7 @@ export default function ListeningModule() {
       // No auto-advance — user clicks NEXT / FINISH
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [answered, hasPlayed, current, answers]
+    [answered, audioEnded, current, answers]
   );
 
   // Stable ref for timer callback
@@ -436,6 +420,7 @@ export default function ListeningModule() {
       answeredRef.current = false;
       setSelectedIndex(null);
       setHasPlayed(false);
+      setAudioEnded(false);
       hasPlayedRef.current = false;
       setAudioPlaying(false);
     } else {
@@ -473,7 +458,7 @@ export default function ListeningModule() {
       padding: '14px 20px',
       border: '1px solid var(--border)',
       background: 'var(--surface)',
-      cursor: answered || !hasPlayed ? 'default' : 'pointer',
+      cursor: answered || !audioEnded ? 'default' : 'pointer',
       fontSize: 15,
       fontWeight: 600,
       display: 'flex',
@@ -507,7 +492,7 @@ export default function ListeningModule() {
   // Footer right-button config
   const rightBtn = (() => {
     if (!answered) {
-      const enabled = hasPlayed;
+      const enabled = audioEnded;
       return {
         label: 'SUBMIT',
         enabled,
@@ -604,12 +589,13 @@ export default function ListeningModule() {
                 audioSrc={q.audioFile}
                 onPlay={() => setHasPlayed(true)}
                 onPlayingChange={setAudioPlaying}
+                onEnded={() => setAudioEnded(true)}
               />
             </div>
 
             {/* Must-listen hint */}
             <AnimatePresence>
-              {!hasPlayed && (
+              {!audioEnded && (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -619,16 +605,11 @@ export default function ListeningModule() {
                     display: 'flex',
                     alignItems: 'center',
                     gap: 8,
-                    background: 'rgba(234,179,8,0.08)',
-                    border: '1px solid var(--warn)',
-                    padding: '8px 14px',
-                    fontSize: 12,
-                    fontWeight: 700,
-                    color: 'var(--warn)',
-                    fontFamily: 'monospace',
+                    color: 'var(--muted)',
+                    fontSize: 13,
                   }}
                 >
-                  ▶ Must listen before answering
+                  <span style={{ fontSize: 16 }}>▶</span> Listen to the full audio before answering
                 </motion.div>
               )}
             </AnimatePresence>
@@ -737,8 +718,8 @@ export default function ListeningModule() {
                   style={{
                     display: 'grid',
                     gap: 10,
-                    pointerEvents: !hasPlayed || answered ? 'none' : 'auto',
-                    opacity: !hasPlayed ? 0.45 : 1,
+                    pointerEvents: !audioEnded || answered ? 'none' : 'auto',
+                    opacity: !audioEnded ? 0.45 : 1,
                     transition: 'opacity 0.2s',
                   }}
                 >
