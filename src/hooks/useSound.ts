@@ -1,7 +1,8 @@
 // src/hooks/useSound.ts
 import { useRef, useCallback, useState, useEffect } from 'react';
+import { useAssessmentStore } from '../store/assessmentStore';
 
-type SoundType = 'click' | 'correct' | 'wrong' | 'level-up' | 'achievement' | 'navigate' | 'complete';
+type SoundType = 'click' | 'correct' | 'wrong' | 'level-up' | 'achievement' | 'navigate' | 'complete' | 'streak' | 'module-complete' | 'finale';
 
 interface SoundConfig {
   type: OscillatorType;
@@ -17,7 +18,10 @@ const SOUND_CONFIGS: Record<SoundType, SoundConfig> = {
   'level-up': { type: 'sine',     frequencies: [523, 659, 784],    duration: 0.4,  volume: 0.3 },
   achievement:{ type: 'sine',     frequencies: [1047, 1319, 1568, 2093], duration: 0.5, volume: 0.25 },
   navigate:   { type: 'sine',     frequencies: [400, 600],         duration: 0.15, volume: 0.15 },
-  complete:   { type: 'sine',     frequencies: [523, 659, 784, 1047], duration: 0.6, volume: 0.3 },
+  complete:          { type: 'sine', frequencies: [523, 659, 784, 1047],                             duration: 0.6,  volume: 0.3 },
+  'streak':          { type: 'sine', frequencies: [659, 784, 1047],                                  duration: 0.35, volume: 0.35 },
+  'module-complete': { type: 'sine', frequencies: [523, 659, 784, 1047, 1319],                        duration: 0.7,  volume: 0.35 },
+  'finale':          { type: 'sine', frequencies: [523, 659, 784, 880, 1047, 1175, 1319, 1568],       duration: 1.2,  volume: 0.4 },
 };
 
 function getStoredVolume(): number {
@@ -30,7 +34,9 @@ function getStoredVolume(): number {
 export function useSound() {
   const ctxRef = useRef<AudioContext | null>(null);
   const [volume, setVolumeState] = useState(getStoredVolume);
-  const [muted, setMuted] = useState(false);
+  
+  // Link to global gamified audio state
+  const audioEnabled = useAssessmentStore(s => s.audioEnabled);
 
   const getCtx = useCallback(() => {
     if (!ctxRef.current) {
@@ -48,7 +54,7 @@ export function useSound() {
   }, []);
 
   const play = useCallback((type: SoundType) => {
-    if (muted) return;
+    if (!audioEnabled) return;
     const config = SOUND_CONFIGS[type];
     const audio = getCtx();
     const now = audio.currentTime;
@@ -74,7 +80,7 @@ export function useSound() {
       osc.start(now + noteDelay);
       osc.stop(now + noteDelay + noteDur + 0.05);
     });
-  }, [muted, volume, getCtx]);
+  }, [audioEnabled, volume, getCtx]);
 
   useEffect(() => {
     return () => {
@@ -84,5 +90,5 @@ export function useSound() {
     };
   }, []);
 
-  return { play, volume, setVolume, muted, setMuted };
+  return { play, volume, setVolume, muted: !audioEnabled };
 }
