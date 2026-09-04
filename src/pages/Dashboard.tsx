@@ -1,9 +1,10 @@
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAssessmentStore } from '../store/assessmentStore';
 import { AnimatedQuestPath } from '../components/dashboard/AnimatedQuestPath';
 import { useConfetti } from '../hooks/useConfetti';
-import { DrivingHeroScene } from '../components/three/DrivingHeroScene';
+
+const DrivingHeroScene = lazy(() => import('../components/three/DrivingHeroScene').then(m => ({ default: m.DrivingHeroScene })));
 
 export default function Dashboard() {
   const navigate = useNavigate();

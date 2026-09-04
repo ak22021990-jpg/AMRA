@@ -4,6 +4,8 @@ import { ShieldCheck, Ear, Brain, Target, Keyboard, AlertTriangle, Zap, CheckCir
 import { useAchievements } from '../hooks/useAchievements';
 import { useConfetti } from '../hooks/useConfetti';
 import { useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { pageTransition, staggerContainer, staggerItem } from '../lib/animations';
 
 const MODULE_ORDER = ['driving', 'listening', 'cognitive', 'pattern', 'grammar'] as const;
 type ModuleId = typeof MODULE_ORDER[number];
@@ -77,32 +79,34 @@ export default function ResultsReport() {
   const rank = allPass ? 'ELITE' : composite >= 60 ? 'TRIAGE' : 'NOVICE';
 
   return (
-    <div className="dashboard-layout">
+    <motion.div className="dashboard-layout" {...pageTransition}>
       {/* LEFT SIDEBAR */}
       <aside className="dashboard-sidebar hidden-mobile" style={{ overflow: "hidden", display: 'flex', flexDirection: 'column' }}>
         <div style={{ padding: '40px 32px', borderBottom: '1px solid var(--border)' }}>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, textTransform: 'uppercase', color: 'var(--accent)', display: 'block', marginBottom: 16, letterSpacing: '0.1em' }}>
+          <motion.span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, textTransform: 'uppercase', color: 'var(--accent)', display: 'block', marginBottom: 16, letterSpacing: '0.1em' }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
             Mission Brief // Complete
-          </span>
-          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 40, fontWeight: 800, letterSpacing: '-0.02em', lineHeight: 1, margin: 0, color: 'var(--midnight)' }}>
+          </motion.span>
+          <motion.h1 style={{ fontFamily: 'var(--font-display)', fontSize: 40, fontWeight: 800, letterSpacing: '-0.02em', lineHeight: 1, margin: 0, color: 'var(--midnight)' }} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}>
             Final<br />Telemetry
-          </h1>
+          </motion.h1>
         </div>
 
         <div style={{ padding: '32px', flex: 1, display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
-          {[
-            { label: 'Operative', value: candidateName },
-            { label: 'Clearance ID', value: testId },
-            { label: 'Total XP', value: `${xp} XP` },
-            { label: 'Sim Rank', value: rank },
-          ].map(({ label, value }) => (
-            <div key={label} style={{ display: 'flex', justifyContent: 'space-between', padding: '16px 0', borderBottom: '1px solid var(--border)' }}>
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, textTransform: 'uppercase', color: 'var(--muted)' }}>{label}</span>
-              <span style={{ fontWeight: 700, fontSize: 13, color: 'var(--fg)' }}>{value}</span>
-            </div>
-          ))}
+          <motion.div variants={staggerContainer} initial="initial" animate="animate">
+            {[
+              { label: 'Operative', value: candidateName },
+              { label: 'Clearance ID', value: testId },
+              { label: 'Total XP', value: `${xp} XP` },
+              { label: 'Sim Rank', value: rank },
+            ].map(({ label, value }) => (
+              <motion.div key={label} variants={staggerItem} style={{ display: 'flex', justifyContent: 'space-between', padding: '16px 0', borderBottom: '1px solid var(--border)' }}>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, textTransform: 'uppercase', color: 'var(--muted)' }}>{label}</span>
+                <span style={{ fontWeight: 700, fontSize: 13, color: 'var(--fg)' }}>{value}</span>
+              </motion.div>
+            ))}
+          </motion.div>
 
-          <div className="anim-fade-in-up" style={{ margin: '40px 0', textAlign: 'center' }}>
+          <motion.div style={{ margin: '40px 0', textAlign: 'center' }} initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.5, duration: 0.6, type: 'spring', stiffness: 200 }}>
             <div style={{ position: 'relative', display: 'inline-flex', justifyContent: 'center', alignItems: 'center' }}>
                <CircularProgress pct={composite} pass={allPass} size={150} />
             </div>
@@ -110,17 +114,17 @@ export default function ResultsReport() {
               Overall Composite Rating
             </div>
             
-            <div className="anim-scale-in" style={{ 
+            <motion.div style={{ 
               fontFamily: 'var(--font-display)', fontSize: 12, fontWeight: 700,
               padding: '12px 24px', border: '1px solid', borderColor: allPass ? 'var(--pass-border)' : 'var(--fail-border)',
               borderRadius: 999, backgroundColor: allPass ? 'var(--pass-bg)' : 'var(--fail-bg)',
               boxShadow: allPass ? '0 8px 24px rgba(16, 185, 129, 0.2)' : '0 8px 24px rgba(239, 68, 68, 0.2)',
               marginTop: 24, display: 'inline-flex', alignItems: 'center', gap: 8, color: allPass ? 'var(--pass)' : 'var(--fail)'
-            }}>
+            }} initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.8, type: 'spring', stiffness: 300 }}>
               {allPass ? <CheckCircle2 size={16} /> : <AlertTriangle size={16} />}
               {allPass ? 'DEPLOYMENT APPROVED' : 'MORE TRAINING REQUIRED'}
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
           <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 12 }}>
             <button onClick={() => window.print()} className="btn btn-primary" style={{ width: '100%' }}>
@@ -145,7 +149,7 @@ export default function ResultsReport() {
            </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: 24 }}>
+        <motion.div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: 24 }} variants={staggerContainer} initial="initial" animate="animate">
           {MODULE_ORDER.map((id) => {
             const meta = MODULE_META[id];
             const r = results[id];
@@ -155,7 +159,7 @@ export default function ResultsReport() {
             const tags = r?.skillTags?.length ? r.skillTags : ['Accuracy', 'Focus', 'Logic'];
 
             return (
-              <div key={id} className="bento-card anim-fade-in-up stagger-1" style={{ display: 'flex', flexDirection: 'column', padding: 0, overflow: 'hidden' }}>
+              <motion.div key={id} variants={staggerItem} whileHover={{ y: -4, transition: { duration: 0.2 } }} className="bento-card" style={{ display: 'flex', flexDirection: 'column', padding: 0, overflow: 'hidden' }}>
                 {/* Header Section */}
                 <div style={{ padding: '24px', borderBottom: '1px solid var(--border)', background: 'var(--surface-subtle)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -211,19 +215,19 @@ export default function ResultsReport() {
                   </div>
 
                 </div>
-              </div>
+              </motion.div>
             );
           })}
-        </div>
+        </motion.div>
 
         {unlocked.length > 0 && (
-          <div style={{ marginTop: 48 }}>
-            <h3 className="anim-fade-in-up" style={{ fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 800, marginBottom: 24, color: 'var(--midnight)' }}>
+          <motion.div style={{ marginTop: 48 }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }}>
+            <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 800, marginBottom: 24, color: 'var(--midnight)' }}>
               Achievements Unlocked
             </h3>
-            <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-              {unlocked.map((ach, i) => (
-                <div key={ach.id} className={`bento-card anim-stamp stagger-${i + 1}`} style={{
+            <motion.div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }} variants={staggerContainer} initial="initial" animate="animate">
+              {unlocked.map((ach) => (
+                <motion.div key={ach.id} variants={staggerItem} whileHover={{ scale: 1.03, transition: { duration: 0.2 } }} className="bento-card" style={{
                   padding: '20px 24px', display: 'flex', alignItems: 'center', gap: 16,
                   border: '1px solid var(--warn-border)', background: '#FFFAF0',
                   boxShadow: '0 12px 24px rgba(245, 158, 11, 0.1)',
@@ -235,12 +239,12 @@ export default function ResultsReport() {
                     <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 16, color: '#B45309' }}>{ach.name}</div>
                     <div style={{ fontSize: 13, color: 'var(--warn)', fontWeight: 500, marginTop: 4 }}>{ach.description}</div>
                   </div>
-                </div>
+                </motion.div>
               ))}
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         )}
       </main>
-    </div>
+    </motion.div>
   );
 }

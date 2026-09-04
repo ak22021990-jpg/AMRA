@@ -4,10 +4,17 @@ export const springConfig = {
   damping: 20,
 };
 
+export const pageTransition = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -20 },
+  transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] as const },
+};
+
 export const fadeInUp = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] },
+  transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as const },
 };
 
 export const staggerContainer = {
@@ -16,6 +23,12 @@ export const staggerContainer = {
       staggerChildren: 0.1,
     },
   },
+};
+
+export const staggerItem = {
+  initial: { opacity: 0, y: 15 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] as const },
 };
 
 export const scaleOnHover = {
